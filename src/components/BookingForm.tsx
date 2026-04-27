@@ -466,7 +466,7 @@ export default function BookingForm() {
                     Create Another Booking
                   </button>
                   <p className="text-xs text-slate-400 font-medium">
-                    Created By: {formData.createdBy}
+                    For enquiries, call <span className="text-indigo-600 font-bold">+233200024081</span>
                   </p>
                 </div>
               </motion.div>
@@ -501,8 +501,9 @@ export default function BookingForm() {
         </div>
 
         {/* Footer info */}
-        <footer className="mt-12 text-center text-slate-400 text-sm">
-          <p>© 2026 Admin Portal • Staff Appointment Verification</p>
+        <footer className="mt-12 text-center text-slate-400 text-sm space-y-2">
+          <p className="font-medium">Need help? Call <span className="text-slate-600 font-bold">+233200024081</span> for more enquiries</p>
+          <p>© 2026 PRIME Portal • Staff Appointment Verification</p>
         </footer>
       </div>
       <StatusModal 
