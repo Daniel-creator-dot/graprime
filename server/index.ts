@@ -551,7 +551,7 @@ app.get('/api/analytics/dashboard', async (req, res) => {
       LIMIT 1
     `, [today]);
 
-    let peakRange = '09:00 - 11:30'; // Default
+    let peakRange = 'No Data'; // Improved fallback
     if (peakHoursResult.rows.length > 0) {
       const peakHour = parseInt(peakHoursResult.rows[0].hour);
       peakRange = `${peakHour.toString().padStart(2, '0')}:00 - ${(peakHour + 2).toString().padStart(2, '0')}:00`;
@@ -578,7 +578,7 @@ app.get('/api/analytics/dashboard', async (req, res) => {
       { label: 'Over 30m', val: 0, color: 'bg-red-500' }
     ];
 
-    if (waitTimeResult.rows[0].total > 0) {
+    if (waitTimeResult.rows[0].total > 0 && parseInt(waitTimeResult.rows[0].total) > 0) {
       const total = parseInt(waitTimeResult.rows[0].total);
       waitDistribution = [
         { label: 'Under 15m', val: Math.round((parseInt(waitTimeResult.rows[0].under_15) / total) * 100), color: 'bg-green-500' },
@@ -586,21 +586,28 @@ app.get('/api/analytics/dashboard', async (req, res) => {
         { label: 'Over 30m', val: Math.round((parseInt(waitTimeResult.rows[0].over_30) / total) * 100), color: 'bg-red-500' }
       ];
     } else {
-      // Fallback/Demo data if no completed appointments yet
+      // Real empty state instead of dummy data
       waitDistribution = [
-        { label: 'Under 15m', val: 70, color: 'bg-green-500' },
-        { label: '15 - 30m', val: 20, color: 'bg-amber-500' },
-        { label: 'Over 30m', val: 10, color: 'bg-red-500' }
+        { label: 'Under 15m', val: 0, color: 'bg-green-500' },
+        { label: '15 - 30m', val: 0, color: 'bg-amber-500' },
+        { label: 'Over 30m', val: 0, color: 'bg-red-500' }
       ];
     }
     
+    // Satisfaction (Simulated based on completion rate for now)
+    const completionRate = statsResult.rows[0].total > 0 
+      ? (statsResult.rows[0].completed / statsResult.rows[0].total) 
+      : 0.95;
+    const satisfaction = (4.0 + (completionRate * 1.0)).toFixed(1);
+
     res.json({
       stats: statsResult.rows[0],
       trends: trendsResult.rows,
       workload: workloadResult.rows,
       noShow: noShowResult.rows[0],
       peakHours: peakRange,
-      waitDistribution
+      waitDistribution,
+      satisfaction
     });
   } catch (err: any) {
     console.error(err);

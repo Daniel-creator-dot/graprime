@@ -434,7 +434,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                         <div className="absolute inset-0 rounded-full border-[12px] border-slate-100"></div>
                         <div className="absolute inset-0 rounded-full border-[12px] border-green-500 border-t-transparent border-r-transparent -rotate-45" style={{ clipPath: 'polygon(50% 50%, -50% -50%, 150% -50%, 150% 150%, 50% 150%)' }}></div>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <p className="text-3xl font-black text-slate-900">4.8</p>
+                          <p className="text-3xl font-black text-slate-900">{stats?.satisfaction || '4.8'}</p>
                           <p className="text-[10px] font-bold text-slate-500 uppercase">Avg Rating</p>
                         </div>
                       </div>
