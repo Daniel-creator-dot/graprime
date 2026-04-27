@@ -466,7 +466,7 @@ export default function BookingForm() {
                     Create Another Booking
                   </button>
                   <p className="text-xs text-slate-400 font-medium">
-                    For enquiries, call <span className="text-indigo-600 font-bold">+233200024081</span>
+                    For enquiries, call <a href="tel:+233200024081" className="text-indigo-600 font-bold hover:underline">+233200024081</a>
                   </p>
                 </div>
               </motion.div>
@@ -502,7 +502,7 @@ export default function BookingForm() {
 
         {/* Footer info */}
         <footer className="mt-12 text-center text-slate-400 text-sm space-y-2">
-          <p className="font-medium">Need help? Call <span className="text-slate-600 font-bold">+233200024081</span> for more enquiries</p>
+          <p className="font-medium">Need help? Call <a href="tel:+233200024081" className="text-slate-600 font-bold hover:text-indigo-600 transition-colors">+233200024081</a> for more enquiries</p>
           <p>© 2026 PRIME Portal • Staff Appointment Verification</p>
         </footer>
       </div>
