@@ -297,8 +297,12 @@ app.post('/api/appointments', async (req, res) => {
     await sendSMS(phoneNumber, `Your appointment ${appointmentId} is booked for ${preferredDate} at ${preferredTime}.`);
     
     
-    // Admin Alert
+    // Admin Alerts
     console.log(`Admin Alert: New appointment ${appointmentId} booked by ${fullName}.`);
+    
+    // Send SMS to Admin
+    await sendSMS('+233200024081', `Admin Alert: New appointment ${appointmentId} booked by ${fullName} for ${preferredDate} at ${preferredTime}.`).catch(e => console.error('Admin SMS Error:', e));
+
     await query('INSERT INTO notifications (message) VALUES ($1)', [
       `New appointment booked: ${appointmentId} by ${fullName}`
     ]);
