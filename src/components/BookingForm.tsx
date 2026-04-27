@@ -62,7 +62,7 @@ export default function BookingForm() {
     if (currentStep === 'basic') {
       if (!formData.fullName) newErrors.fullName = 'Full Name is required';
       if (!formData.email) newErrors.email = 'Email is required';
-      if (!formData.staffId) newErrors.staffId = 'Staff ID is required';
+      if (!formData.staffId) newErrors.staffId = 'Nationwide Policy ID is required';
       if (!formData.phoneNumber) newErrors.phoneNumber = 'Phone Number is required';
     }
 
@@ -174,9 +174,9 @@ export default function BookingForm() {
                     error={errors.fullName}
                   />
                   <InputField 
-                    label="Staff ID" 
+                    label="Nationwide Policy ID" 
                     icon={<Hash className="w-4 h-4" />}
-                    placeholder="e.g. STF-123"
+                    placeholder="e.g. NW-12345"
                     value={formData.staffId}
                     onChange={(v) => updateField('staffId', v)}
                     error={errors.staffId}
@@ -394,7 +394,7 @@ export default function BookingForm() {
                         <p className="font-bold">{formData.fullName}</p>
                       </div>
                       <div>
-                        <p className="text-slate-400 font-medium">Staff ID</p>
+                        <p className="text-slate-400 font-medium">Nationwide Policy ID</p>
                         <p className="font-bold">{formData.staffId}</p>
                       </div>
                       <div>
