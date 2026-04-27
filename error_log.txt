@@ -1,0 +1,4 @@
+ReferenceError: peakRange is not defined
+ReferenceError: peakRange is not defined
+    at <anonymous> (C:\Users\x\Documents\appoint new\server\index.ts:512:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
