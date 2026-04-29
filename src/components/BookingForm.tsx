@@ -27,6 +27,7 @@ const INITIAL_DATA: AppointmentData = {
   phoneNumber: '',
   email: '',
   staffId: '',
+  nationwideId: '',
   department: '',
   reason: '',
   preferredDate: '',
@@ -62,7 +63,8 @@ export default function BookingForm() {
     if (currentStep === 'basic') {
       if (!formData.fullName) newErrors.fullName = 'Full Name is required';
       if (!formData.email) newErrors.email = 'Email is required';
-      if (!formData.staffId) newErrors.staffId = 'Nationwide Policy ID is required';
+      if (!formData.staffId) newErrors.staffId = 'Staff number is required';
+      if (!formData.nationwideId) newErrors.nationwideId = 'Nationwide membership no. is required';
       if (!formData.phoneNumber) newErrors.phoneNumber = 'Phone Number is required';
     }
 
@@ -174,12 +176,19 @@ export default function BookingForm() {
                     error={errors.fullName}
                   />
                   <InputField 
-                    label="Nationwide Policy ID" 
+                    label="Staff number" 
                     icon={<Hash className="w-4 h-4" />}
-                    placeholder="e.g. NW-12345"
                     value={formData.staffId}
                     onChange={(v) => updateField('staffId', v)}
                     error={errors.staffId}
+                  />
+                  <InputField 
+                    label="Nationwide membership no." 
+                    icon={<Hash className="w-4 h-4" />}
+                    placeholder="Eg. N1678229315"
+                    value={formData.nationwideId}
+                    onChange={(v) => updateField('nationwideId', v)}
+                    error={errors.nationwideId}
                   />
                   <InputField 
                     label="Email Address" 
@@ -197,7 +206,7 @@ export default function BookingForm() {
                     error={errors.phoneNumber}
                   />
                   <InputField 
-                    label="Department" 
+                    label="Office" 
                     icon={<Building2 className="w-4 h-4" />}
                     value={formData.department}
                     onChange={(v) => updateField('department', v)}
@@ -356,7 +365,7 @@ export default function BookingForm() {
                           />
                         </div>
                       </div>
-                      <span className="ml-3 text-sm font-semibold text-slate-700">Have you visited this department before?</span>
+                      <span className="ml-3 text-sm font-semibold text-slate-700">Have you visited this office before?</span>
                     </label>
                   </div>
 
@@ -394,8 +403,12 @@ export default function BookingForm() {
                         <p className="font-bold">{formData.fullName}</p>
                       </div>
                       <div>
-                        <p className="text-slate-400 font-medium">Nationwide Policy ID</p>
+                        <p className="text-slate-400 font-medium">Staff number</p>
                         <p className="font-bold">{formData.staffId}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400 font-medium">Nationwide membership no.</p>
+                        <p className="font-bold">{formData.nationwideId}</p>
                       </div>
                       <div>
                         <p className="text-slate-400 font-medium">Appointment</p>

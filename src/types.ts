@@ -13,6 +13,7 @@ export interface AppointmentData {
   phoneNumber: string;
   email: string;
   staffId: string;
+  nationwideId: string;
   department: string;
   reason: string;
 

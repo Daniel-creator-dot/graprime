@@ -45,6 +45,7 @@ export const initDb = async () => {
         full_name VARCHAR(100) NOT NULL,
         email VARCHAR(100),
         phone_number VARCHAR(20) NOT NULL,
+        nationwide_id VARCHAR(50),
         department VARCHAR(100),
         no_show_count INTEGER DEFAULT 0,
         is_restricted BOOLEAN DEFAULT FALSE,
@@ -86,6 +87,7 @@ export const initDb = async () => {
         email VARCHAR(100),
         phone_number VARCHAR(20) NOT NULL,
         staff_id VARCHAR(50),
+        nationwide_id VARCHAR(50),
         department VARCHAR(100),
         doctor_id INTEGER REFERENCES doctors(id),
         preferred_date DATE NOT NULL,
@@ -100,12 +102,18 @@ export const initDb = async () => {
       );
     `);
 
-    // Ensure completed_at exists (Migration)
+    // Ensure completed_at and nationwide_id exist (Migration)
     await query(`
       DO $$ 
       BEGIN 
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='completed_at') THEN
           ALTER TABLE appointments ADD COLUMN completed_at TIMESTAMP;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='patients' AND column_name='nationwide_id') THEN
+          ALTER TABLE patients ADD COLUMN nationwide_id VARCHAR(50);
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='nationwide_id') THEN
+          ALTER TABLE appointments ADD COLUMN nationwide_id VARCHAR(50);
         END IF;
       END $$;
     `);

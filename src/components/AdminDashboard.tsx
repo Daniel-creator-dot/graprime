@@ -344,7 +344,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                       <table className="w-full text-left">
                         <thead>
                           <tr className="bg-slate-50 border-b border-slate-200">
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Patient / Policy ID</th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Patient / IDs</th>
                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Time</th>
                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Doctor</th>
                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
@@ -360,7 +360,8 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                             <tr key={apt.id} className="hover:bg-slate-50/50 transition-colors">
                               <td className="px-6 py-4">
                                 <p className="font-bold text-sm">{apt.full_name}</p>
-                                <p className="text-xs text-slate-500">{apt.staff_id}</p>
+                                <p className="text-xs text-slate-500">Staff No: {apt.staff_id}</p>
+                                {apt.nationwide_id && <p className="text-[10px] text-slate-400">Nationwide: {apt.nationwide_id}</p>}
                               </td>
                               <td className="px-6 py-4">
                                 <p className="text-sm font-semibold">{apt.preferred_time}</p>
@@ -678,7 +679,8 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                           </td>
                           <td className="px-6 py-4">
                             <p className="font-bold text-sm">{apt.full_name}</p>
-                            <p className="text-xs text-slate-500">{apt.staff_id}</p>
+                            <p className="text-xs text-slate-500">Staff No: {apt.staff_id}</p>
+                            {apt.nationwide_id && <p className="text-[10px] text-slate-400">Nationwide: {apt.nationwide_id}</p>}
                           </td>
                           <td className="px-6 py-4 text-sm font-medium">
                             {apt.preferred_time}

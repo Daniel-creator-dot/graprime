@@ -258,7 +258,7 @@ app.get('/api/appointments', async (req, res) => {
 
 app.post('/api/appointments', async (req, res) => {
   const { 
-    fullName, phoneNumber, email, staffId, department, 
+    fullName, phoneNumber, email, staffId, nationwideId, department, 
     reason, preferredDate, preferredTime, priority, notes, doctor_id 
   } = req.body;
   
@@ -274,9 +274,9 @@ app.post('/api/appointments', async (req, res) => {
     // 2. Register patient if not exists
     if (!patient) {
       const newPatient = await query(`
-        INSERT INTO patients (staff_id, full_name, email, phone_number, department)
-        VALUES ($1, $2, $3, $4, $5) RETURNING *
-      `, [staffId, fullName, email, phoneNumber, department]);
+        INSERT INTO patients (staff_id, nationwide_id, full_name, email, phone_number, department)
+        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *
+      `, [staffId, nationwideId, fullName, email, phoneNumber, department]);
       patient = newPatient.rows[0];
     }
 
@@ -284,12 +284,12 @@ app.post('/api/appointments', async (req, res) => {
 
     const result = await query(`
       INSERT INTO appointments (
-        appointment_id, patient_id, full_name, phone_number, email, staff_id, 
+        appointment_id, patient_id, full_name, phone_number, email, staff_id, nationwide_id,
         department, notes, preferred_date, preferred_time, priority, doctor_id
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING *
     `, [
-      appointmentId, patient.id, fullName, phoneNumber, email, staffId, 
+      appointmentId, patient.id, fullName, phoneNumber, email, staffId, nationwideId,
       department, reason + (notes ? ' | ' + notes : ''), preferredDate, preferredTime, priority, doctor_id
     ]);
 
