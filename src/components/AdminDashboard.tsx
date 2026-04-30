@@ -48,7 +48,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
   const [editingDoctor, setEditingDoctor] = useState<any>(null);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [settings, setSettings] = useState<any>({
-    clinic_name: 'Customs Services Association',
+    clinic_name: 'Custom Staff Association',
     sms_base_url: 'https://www.inteksms.top/api/v1',
     sms_sender_id: 'Primecare',
     sms_api_key: ''
