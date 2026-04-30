@@ -137,9 +137,9 @@ export default function BookingForm() {
         {/* Header */}
         <header className="mb-10 text-center">
           <div className="flex justify-center items-center gap-8 mb-6">
-            <img src={graLogo} alt="GRA Logo" className="h-16 w-auto object-contain" />
-            <div className="h-12 w-px bg-slate-200" />
             <img src={graaLogo} alt="GRAA Logo" className="h-16 w-auto object-contain" />
+            <div className="h-12 w-px bg-slate-200" />
+            <img src={graLogo} alt="GRA Logo" className="h-16 w-auto object-contain" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">Customs Services Association</h1>
           <p className="mt-2 text-slate-500 font-medium">In partnership with Prime Care</p>

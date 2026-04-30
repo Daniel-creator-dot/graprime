@@ -100,11 +100,11 @@ export default function Login({ onLogin }: { onLogin: (user: any) => void }) {
         <div className="flex flex-col items-center mb-12">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-20 h-20 bg-white rounded-[24px] flex items-center justify-center shadow-xl shadow-indigo-100 overflow-hidden p-2">
-              <img src={graLogo} alt="GRA Logo" className="w-full h-full object-contain" />
+              <img src={graaLogo} alt="GRAA Logo" className="w-full h-full object-contain" />
             </div>
             <div className="h-10 w-px bg-slate-200" />
             <div className="w-20 h-20 bg-white rounded-[24px] flex items-center justify-center shadow-xl shadow-indigo-100 overflow-hidden p-2">
-              <img src={graaLogo} alt="GRAA Logo" className="w-full h-full object-contain" />
+              <img src={graLogo} alt="GRA Logo" className="w-full h-full object-contain" />
             </div>
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-3">

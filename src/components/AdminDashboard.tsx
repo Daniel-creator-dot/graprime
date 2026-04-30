@@ -122,10 +122,10 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-white/5 overflow-hidden">
-                 <img src={graLogo} alt="GRA Logo" className="w-full h-full object-contain p-1" />
+                 <img src={graaLogo} alt="GRAA Logo" className="w-full h-full object-contain p-1" />
               </div>
               <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-white/5 overflow-hidden">
-                 <img src={graaLogo} alt="GRAA Logo" className="w-full h-full object-contain p-1" />
+                 <img src={graLogo} alt="GRA Logo" className="w-full h-full object-contain p-1" />
               </div>
             </div>
             <div>
