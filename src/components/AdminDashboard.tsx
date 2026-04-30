@@ -1079,7 +1079,9 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
     notes: '',
     doctor_id: '',
     priority: '',
-    status: ''
+    status: '',
+    who_is_coming: '',
+    service: ''
   });
   const [loading, setLoading] = useState(false);
 
@@ -1091,7 +1093,9 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
         notes: appointment.notes || '',
         doctor_id: appointment.doctor_id || '',
         priority: appointment.priority,
-        status: appointment.status
+        status: appointment.status,
+        who_is_coming: appointment.who_is_coming || '',
+        service: appointment.service || ''
       });
     }
   }, [appointment]);
@@ -1121,6 +1125,11 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
             <button type="button" onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg"><XCircle className="w-5 h-5 text-slate-400" /></button>
           </div>
           
+          <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl">
+             <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Patient Name</p>
+             <p className="font-bold text-slate-900">{appointment?.full_name}</p>
+          </div>
+          
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -1143,6 +1152,38 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
                   onChange={(e) => setFormData({...formData, preferred_time: e.target.value})}
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Who is coming (Optional)</label>
+              <input 
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl"
+                value={formData.who_is_coming}
+                onChange={(e) => setFormData({...formData, who_is_coming: e.target.value})}
+                placeholder="e.g. wife, family, name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Service / Specialty</label>
+              <select 
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl"
+                value={formData.service}
+                onChange={(e) => setFormData({...formData, service: e.target.value})}
+              >
+                <option value="">Select a Service</option>
+                <option value="Physio">Physio - Monday and Friday</option>
+                <option value="Dietician">Dietician - Tuesday</option>
+                <option value="Surgical">Surgical - Tuesday</option>
+                <option value="Psychiatry">Psychiatry - Tuesday and Thursday</option>
+                <option value="Urology">Urology - 2nd Wednesday of every month</option>
+                <option value="Physician specialties">Physician specialties - 2nd Wednesday of every month</option>
+                <option value="Dental">Dental - Wednesday</option>
+                <option value="Ent">Ent - Friday</option>
+                <option value="Eye">Eye - Saturday</option>
+                <option value="Pediatric">Pediatric - Thursday</option>
+                <option value="ANC/Gynae">ANC/Gynae - Thursday</option>
+              </select>
             </div>
 
             <div>

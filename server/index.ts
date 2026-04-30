@@ -317,7 +317,7 @@ app.post('/api/appointments', async (req, res) => {
 
 app.patch('/api/appointments/:id', async (req, res) => {
   const { id } = req.params;
-  const { preferred_date, preferred_time, notes, doctor_id, priority, status } = req.body;
+  const { preferred_date, preferred_time, notes, doctor_id, priority, status, who_is_coming, service } = req.body;
   try {
     const finalDoctorId = doctor_id === '' ? null : doctor_id;
 
@@ -329,9 +329,11 @@ app.patch('/api/appointments/:id', async (req, res) => {
            doctor_id = $4,
            priority = COALESCE($5, priority),
            status = COALESCE($6::varchar, status),
+           who_is_coming = COALESCE($7, who_is_coming),
+           service = COALESCE($8, service),
            completed_at = CASE WHEN $6::varchar = 'completed' THEN CURRENT_TIMESTAMP ELSE completed_at END
-       WHERE id = $7 RETURNING *`,
-      [preferred_date, preferred_time, notes, finalDoctorId, priority, status, id]
+       WHERE id = $9 RETURNING *`,
+      [preferred_date, preferred_time, notes, finalDoctorId, priority, status, who_is_coming, service, id]
     );
     const apt = result.rows[0];
     // Trigger SMS Alerts
