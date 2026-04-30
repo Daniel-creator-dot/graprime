@@ -347,7 +347,7 @@ export default function BookingForm() {
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Priority Level</label>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Priority Service</label>
                       <div className="flex gap-2">
                         {(['Low', 'Medium', 'High'] as PriorityLevel[]).map((p) => (
                           <button

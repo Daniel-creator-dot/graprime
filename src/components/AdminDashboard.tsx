@@ -525,7 +525,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                           <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Patient</th>
                           <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Schedule</th>
                           <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Doctor</th>
-                          <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Priority</th>
+                          <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Priority Service</th>
                           <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
                           <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
                         </tr>
@@ -1203,7 +1203,7 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Priority</label>
+                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Priority Service</label>
                 <select 
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl"
                   value={formData.priority}
