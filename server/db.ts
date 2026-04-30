@@ -157,7 +157,7 @@ export const initDb = async () => {
 
     // Initialize default settings if they don't exist
     const defaultSettings = [
-      ['clinic_name', 'PRIME'],
+      ['clinic_name', 'Customer Service Association - in partnership with Prime Care'],
       ['sms_base_url', 'https://www.inteksms.top/api/v1/messages/send'],
       ['sms_sender_id', 'Primecare'],
       ['sms_api_key', 'INTEK_C29C88.0e7310c3b08164b4773cc74d81ab234b203b38a42800120f']

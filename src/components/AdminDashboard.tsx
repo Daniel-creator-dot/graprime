@@ -47,7 +47,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
   const [editingDoctor, setEditingDoctor] = useState<any>(null);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [settings, setSettings] = useState<any>({
-    clinic_name: 'PRIME',
+    clinic_name: 'Customer Service Association',
     sms_base_url: 'https://www.inteksms.top/api/v1',
     sms_sender_id: 'Primecare',
     sms_api_key: ''
@@ -123,7 +123,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                <img src={logo} alt="GRA Logo" className="w-full h-full object-cover p-1" />
             </div>
             <div>
-              <h1 className="font-bold text-lg leading-tight">PRIME</h1>
+              <h1 className="font-bold text-lg leading-tight">CSA</h1>
               <p className="text-[10px] text-slate-500 font-bold tracking-widest uppercase">Admin Portal</p>
             </div>
           </div>

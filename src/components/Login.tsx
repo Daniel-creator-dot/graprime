@@ -104,7 +104,7 @@ export default function Login({ onLogin }: { onLogin: (user: any) => void }) {
             {mode === 'login' ? 'Welcome Back' : mode === 'forgot' ? 'Forgot Access?' : 'Reset Password'}
           </h1>
           <p className="text-slate-400 font-medium uppercase text-[10px] tracking-widest">
-            {mode === 'login' ? 'PRIME INTERNAL PORTAL' : 'SECURE ACCOUNT RECOVERY'}
+            {mode === 'login' ? 'CSA INTERNAL PORTAL' : 'SECURE ACCOUNT RECOVERY'}
           </p>
         </div>
 

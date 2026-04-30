@@ -64,7 +64,6 @@ export default function BookingForm() {
     
     if (currentStep === 'basic') {
       if (!formData.fullName) newErrors.fullName = 'Full Name is required';
-      if (!formData.whoIsComing) newErrors.whoIsComing = 'Who is coming is required';
       if (!formData.email) newErrors.email = 'Email is required';
       if (!formData.staffId) newErrors.staffId = 'Staff number is required';
       if (!formData.nationwideId) newErrors.nationwideId = 'Nationwide membership no. is required';
@@ -139,8 +138,9 @@ export default function BookingForm() {
           <div className="flex justify-center mb-6">
             <img src={logo} alt="GRA Logo" className="h-20 w-auto object-contain" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">PRIME</h1>
-          <p className="mt-2 text-slate-500 font-medium">Pre-Booking Appointment System</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Customer Service Association</h1>
+          <p className="mt-2 text-slate-500 font-medium">In partnership with Prime Care</p>
+          <p className="mt-1 text-slate-400 text-sm">Pre-Booking Appointment System</p>
         </header>
 
         {step !== 'success' && (
@@ -179,7 +179,7 @@ export default function BookingForm() {
                     error={errors.fullName}
                   />
                   <InputField 
-                    label="Who is coming" 
+                    label="Who is coming (Optional)" 
                     placeholder="e.g., wife, family, name"
                     icon={<User className="w-4 h-4" />}
                     value={formData.whoIsComing}
@@ -508,7 +508,7 @@ export default function BookingForm() {
         {/* Footer info */}
         <footer className="mt-12 text-center text-slate-400 text-sm space-y-2">
           <p className="font-medium">Need help? Call <a href="tel:+233200024081" className="text-slate-600 font-bold hover:text-indigo-600 transition-colors">+233200024081</a> for more enquiries</p>
-          <p>© 2026 PRIME Portal • Staff Appointment Verification</p>
+          <p>© 2026 Customer Service Association • Staff Appointment Verification</p>
         </footer>
       </div>
       <StatusModal 
