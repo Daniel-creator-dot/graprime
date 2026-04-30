@@ -1,0 +1,1 @@
+import { initDb } from '../server/db.js'; initDb().then(() => { console.log('Migration done'); process.exit(0); }).catch(e => { console.error(e); process.exit(1); });

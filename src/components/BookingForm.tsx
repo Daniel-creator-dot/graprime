@@ -61,7 +61,7 @@ export default function BookingForm() {
     const newErrors: Partial<Record<keyof AppointmentData, string>> = {};
     
     if (currentStep === 'basic') {
-      if (!formData.fullName) newErrors.fullName = 'Full Name is required';
+      if (!formData.fullName) newErrors.fullName = 'Who is coming is required';
       if (!formData.email) newErrors.email = 'Email is required';
       if (!formData.staffId) newErrors.staffId = 'Staff number is required';
       if (!formData.nationwideId) newErrors.nationwideId = 'Nationwide membership no. is required';
@@ -169,7 +169,8 @@ export default function BookingForm() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <InputField 
-                    label="Full Name" 
+                    label="Who is coming" 
+                    placeholder="e.g., wife, family, name"
                     icon={<User className="w-4 h-4" />}
                     value={formData.fullName}
                     onChange={(v) => updateField('fullName', v)}
@@ -329,54 +330,6 @@ export default function BookingForm() {
                         ))}
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Preferred Contact</label>
-                      <div className="flex gap-2">
-                        {(['Call', 'SMS'] as ContactMethod[]).map((m) => (
-                          <button
-                            key={m}
-                            onClick={() => updateField('preferredContact', m)}
-                            className={`flex-1 py-3 px-2 rounded-xl border-2 transition-all font-medium ${
-                              formData.preferredContact === m 
-                                ? 'bg-indigo-50 border-indigo-500 text-indigo-700' 
-                                : 'bg-transparent border-slate-200 text-slate-500 hover:border-slate-300'
-                            }`}
-                          >
-                            {m}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200">
-                    <label className="flex items-center cursor-pointer select-none">
-                      <div className="relative">
-                        <input 
-                          type="checkbox" 
-                          className="sr-only"
-                          checked={formData.previousVisit}
-                          onChange={(e) => updateField('previousVisit', e.target.checked)}
-                        />
-                        <div className={`w-12 h-6 flex items-center rounded-full p-1 transition-all ${formData.previousVisit ? 'bg-indigo-600' : 'bg-slate-300'}`}>
-                          <motion.div 
-                            className="bg-white w-4 h-4 rounded-full shadow-sm"
-                            animate={{ x: formData.previousVisit ? 24 : 0 }}
-                          />
-                        </div>
-                      </div>
-                      <span className="ml-3 text-sm font-semibold text-slate-700">Have you visited this office before?</span>
-                    </label>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Notes / Additional Comments</label>
-                    <textarea 
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none h-24"
-                      placeholder="Any extra details for the officer..."
-                      value={formData.notes}
-                      onChange={(e) => updateField('notes', e.target.value)}
-                    />
                   </div>
                 </div>
               </motion.div>
@@ -399,7 +352,7 @@ export default function BookingForm() {
                   <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
                     <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
                       <div>
-                        <p className="text-slate-400 font-medium">Full Name</p>
+                        <p className="text-slate-400 font-medium">Who is coming</p>
                         <p className="font-bold">{formData.fullName}</p>
                       </div>
                       <div>

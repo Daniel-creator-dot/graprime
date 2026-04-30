@@ -1,0 +1,1 @@
+import { query } from '../server/db.js'; query(SELECT column_name FROM information_schema.columns WHERE table_name='patients' AND column_name='nationwide_id').then(res => console.log(res.rows)).catch(console.error).finally(()=>process.exit(0));
