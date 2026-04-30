@@ -265,7 +265,10 @@ export default function BookingForm() {
                     error={errors.preferredTime}
                   />
                   <div className="flex flex-col gap-1">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Doctor to See</label>
+                    <label className="block text-sm font-semibold text-slate-700">
+                      Doctor to See <span className="text-xs font-normal text-slate-400 ml-1">(Optional)</span>
+                    </label>
+                    <p className="text-[10px] text-slate-400 mb-2 italic">please ignore if this is your first visit</p>
                     <div className="relative">
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                         <UserCheck className="w-4 h-4" />

@@ -1187,7 +1187,8 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
             </div>
 
             <div>
-              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Assigned Doctor</label>
+              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">Assigned Doctor (Optional)</label>
+              <p className="text-[10px] text-slate-400 mb-2 italic ml-1">please ignore if this is your first visit</p>
               <select 
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl"
                 value={formData.doctor_id}
