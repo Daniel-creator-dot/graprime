@@ -295,7 +295,7 @@ app.post('/api/appointments', async (req, res) => {
 
     // Real SMS Sending
     const locationLink = "https://www.google.com/maps/search/?api=1&query=Primecare+Medical+Center+Accra";
-    await sendSMS(phoneNumber, `CSA: Your appointment ${appointmentId} is booked for ${preferredDate} at ${preferredTime}. Location: ${locationLink}. Thank you for choosing CSA in partnership with Prime Care.`);
+    await sendSMS(phoneNumber, `CSA: Your appointment ${appointmentId} is booked for ${preferredDate} at ${preferredTime}. Location: ${locationLink}. Thank you for choosing Primecare Medical Center.`);
     
     
     // Admin Alerts
@@ -343,15 +343,15 @@ app.patch('/api/appointments/:id', async (req, res) => {
         const doctorName = docResult.rows[0]?.name || 'a Physician';
         const dateStr = apt.preferred_date ? new Date(apt.preferred_date).toLocaleDateString() : 'the scheduled date';
         const locationLink = "https://www.google.com/maps/search/?api=1&query=Primecare+Medical+Center+Accra";
-        const msg = `CSA: Your appointment ${apt.appointment_id} has been APPROVED with ${doctorName} for ${dateStr}. Location: ${locationLink}. Call +233200024081 for enquiries. Thank you for choosing CSA & Prime Care.`;
+        const msg = `CSA: Your appointment ${apt.appointment_id} has been APPROVED with ${doctorName} for ${dateStr}. Location: ${locationLink}. Call +233200024081 for enquiries. Thank you for choosing Primecare Medical Center.`;
         await sendSMS(apt.phone_number, msg).catch(e => console.error('SMS Error in Edit/Approve:', e));
       } else if (status === 'completed') {
         const docResult = await query('SELECT name FROM doctors WHERE id = $1', [apt.doctor_id]);
         const doctorName = docResult.rows[0]?.name || 'our team';
-        const msg = `CSA: Your appointment ${apt.appointment_id} with ${doctorName} has been marked as COMPLETED. Call +233200024081 for enquiries. Thank you for choosing CSA & Prime Care.`;
+        const msg = `CSA: Your appointment ${apt.appointment_id} with ${doctorName} has been marked as COMPLETED. Call +233200024081 for enquiries. Thank you for choosing Primecare Medical Center.`;
         await sendSMS(apt.phone_number, msg).catch(e => console.error('SMS Error in Edit/Complete:', e));
       } else if (status === 'cancelled') {
-        const msg = `CSA: Your appointment ${apt.appointment_id} has been CANCELLED. Call +233200024081 for enquiries. Thank you for choosing CSA & Prime Care.`;
+        const msg = `CSA: Your appointment ${apt.appointment_id} has been CANCELLED. Call +233200024081 for enquiries. Thank you for choosing Primecare Medical Center.`;
         await sendSMS(apt.phone_number, msg).catch(e => console.error('SMS Error in Edit/Cancel:', e));
       }
     }
@@ -385,15 +385,15 @@ app.patch('/api/appointments/:id/status', async (req, res) => {
         const doctorName = docResult.rows[0]?.name || 'a Physician';
         const dateStr = apt.preferred_date ? new Date(apt.preferred_date).toLocaleDateString() : 'the scheduled date';
         const locationLink = "https://www.google.com/maps/search/?api=1&query=Primecare+Medical+Center+Accra";
-        const msg = `CSA: Your appointment ${apt.appointment_id} has been APPROVED with ${doctorName} for ${dateStr}. Location: ${locationLink}. Call +233200024081 for enquiries. Thank you for choosing CSA & Prime Care.`;
+        const msg = `CSA: Your appointment ${apt.appointment_id} has been APPROVED with ${doctorName} for ${dateStr}. Location: ${locationLink}. Call +233200024081 for enquiries. Thank you for choosing Primecare Medical Center.`;
         await sendSMS(apt.phone_number, msg).catch(e => console.error('SMS Error in Status/Approve:', e));
       } else if (status === 'completed') {
         const docResult = await query('SELECT name FROM doctors WHERE id = $1', [apt.doctor_id]);
         const doctorName = docResult.rows[0]?.name || 'our team';
-        const msg = `CSA: Your appointment ${apt.appointment_id} with ${doctorName} has been marked as COMPLETED. Call +233200024081 for enquiries. Thank you for choosing CSA & Prime Care.`;
+        const msg = `CSA: Your appointment ${apt.appointment_id} with ${doctorName} has been marked as COMPLETED. Call +233200024081 for enquiries. Thank you for choosing Primecare Medical Center.`;
         await sendSMS(apt.phone_number, msg).catch(e => console.error('SMS Error in Status/Complete:', e));
       } else if (status === 'cancelled') {
-        const msg = `CSA: Your appointment ${apt.appointment_id} has been CANCELLED. Call +233200024081 for enquiries. Thank you for choosing CSA & Prime Care.`;
+        const msg = `CSA: Your appointment ${apt.appointment_id} has been CANCELLED. Call +233200024081 for enquiries. Thank you for choosing Primecare Medical Center.`;
         await sendSMS(apt.phone_number, msg).catch(e => console.error('SMS Error in Status/Cancel:', e));
       }
     }
