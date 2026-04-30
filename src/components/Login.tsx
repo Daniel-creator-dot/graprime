@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Mail, Lock, LogIn, ShieldCheck, KeyRound, ChevronLeft, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { authApi } from '../api/client';
 import { motion, AnimatePresence } from 'motion/react';
-import logo from '../gra.png';
+import graLogo from '../gra.png';
+import graaLogo from '../graa.png';
 import StatusModal from './StatusModal';
 
 type LoginMode = 'login' | 'forgot' | 'reset';
@@ -97,8 +98,14 @@ export default function Login({ onLogin }: { onLogin: (user: any) => void }) {
         className="w-full max-w-[480px] bg-white rounded-[40px] shadow-2xl shadow-indigo-100/50 p-12 relative z-10 border border-white"
       >
         <div className="flex flex-col items-center mb-12">
-          <div className="w-24 h-24 bg-white rounded-[28px] flex items-center justify-center shadow-xl shadow-indigo-100 mb-8 overflow-hidden p-2">
-            <img src={logo} alt="GRA Logo" className="w-full h-full object-contain" />
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-20 h-20 bg-white rounded-[24px] flex items-center justify-center shadow-xl shadow-indigo-100 overflow-hidden p-2">
+              <img src={graLogo} alt="GRA Logo" className="w-full h-full object-contain" />
+            </div>
+            <div className="h-10 w-px bg-slate-200" />
+            <div className="w-20 h-20 bg-white rounded-[24px] flex items-center justify-center shadow-xl shadow-indigo-100 overflow-hidden p-2">
+              <img src={graaLogo} alt="GRAA Logo" className="w-full h-full object-contain" />
+            </div>
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-3">
             {mode === 'login' ? 'Welcome Back' : mode === 'forgot' ? 'Forgot Access?' : 'Reset Password'}

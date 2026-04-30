@@ -20,7 +20,8 @@ import {
 } from 'lucide-react';
 import { appointmentsApi, analyticsApi, doctorsApi, notificationsApi, usersApi, settingsApi } from '../api/client';
 import { motion, AnimatePresence } from 'motion/react';
-import logo from '../gra.png';
+import graLogo from '../gra.png';
+import graaLogo from '../graa.png';
 import StatusModal from './StatusModal';
 
 type Tab = 'overview' | 'appointments' | 'doctors' | 'queue' | 'reports' | 'settings' | 'users';
@@ -47,7 +48,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
   const [editingDoctor, setEditingDoctor] = useState<any>(null);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [settings, setSettings] = useState<any>({
-    clinic_name: 'Customer Service Association',
+    clinic_name: 'Customs Services Association',
     sms_base_url: 'https://www.inteksms.top/api/v1',
     sms_sender_id: 'Primecare',
     sms_api_key: ''
@@ -118,12 +119,17 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
       {/* Sidebar */}
       <aside className={`w-72 bg-slate-900 text-white flex flex-col fixed h-full z-[70] transition-transform duration-300 md:static md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-8 border-b border-slate-800">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-white/5 overflow-hidden">
-               <img src={logo} alt="GRA Logo" className="w-full h-full object-cover p-1" />
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-white/5 overflow-hidden">
+                 <img src={graLogo} alt="GRA Logo" className="w-full h-full object-contain p-1" />
+              </div>
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-white/5 overflow-hidden">
+                 <img src={graaLogo} alt="GRAA Logo" className="w-full h-full object-contain p-1" />
+              </div>
             </div>
             <div>
-              <h1 className="font-bold text-lg leading-tight">CSA</h1>
+              <h1 className="font-bold text-lg leading-tight text-white">CSA</h1>
               <p className="text-[10px] text-slate-500 font-bold tracking-widest uppercase">Admin Portal</p>
             </div>
           </div>

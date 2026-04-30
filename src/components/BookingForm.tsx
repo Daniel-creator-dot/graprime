@@ -16,7 +16,8 @@ import {
   Hash,
   UserCheck
 } from 'lucide-react';
-import logo from '../gra.png';
+import graLogo from '../gra.png';
+import graaLogo from '../graa.png';
 import { AppointmentData, FormStep, AppointmentType, PriorityLevel, ContactMethod } from '../types';
 import { appointmentsApi, doctorsApi } from '../api/client';
 import { useEffect } from 'react';
@@ -135,10 +136,12 @@ export default function BookingForm() {
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <header className="mb-10 text-center">
-          <div className="flex justify-center mb-6">
-            <img src={logo} alt="GRA Logo" className="h-20 w-auto object-contain" />
+          <div className="flex justify-center items-center gap-8 mb-6">
+            <img src={graLogo} alt="GRA Logo" className="h-16 w-auto object-contain" />
+            <div className="h-12 w-px bg-slate-200" />
+            <img src={graaLogo} alt="GRAA Logo" className="h-16 w-auto object-contain" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Customer Service Association</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Customs Services Association</h1>
           <p className="mt-2 text-slate-500 font-medium">In partnership with Prime Care</p>
           <p className="mt-1 text-slate-400 text-sm">Pre-Booking Appointment System</p>
         </header>
@@ -511,7 +514,7 @@ export default function BookingForm() {
         {/* Footer info */}
         <footer className="mt-12 text-center text-slate-400 text-sm space-y-2">
           <p className="font-medium">Need help? Call <a href="tel:+233200024081" className="text-slate-600 font-bold hover:text-indigo-600 transition-colors">+233200024081</a> for more enquiries</p>
-          <p>© 2026 Customer Service Association • Staff Appointment Verification</p>
+          <p>© 2026 Customs Services Association • Staff Appointment Verification</p>
         </footer>
       </div>
       <StatusModal 
