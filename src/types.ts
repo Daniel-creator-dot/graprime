@@ -16,6 +16,10 @@ export interface AppointmentData {
   nationwideId: string;
   department: string;
   reason: string;
+  whoIsComing: string;
+
+  // Appointment Details
+  service: string;
 
   // Appointment Details
   preferredDate: string;

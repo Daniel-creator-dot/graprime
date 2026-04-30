@@ -360,6 +360,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                             <tr key={apt.id} className="hover:bg-slate-50/50 transition-colors">
                               <td className="px-6 py-4">
                                 <p className="font-bold text-sm">{apt.full_name}</p>
+                                {apt.who_is_coming && <p className="text-xs text-indigo-600 font-bold">For: {apt.who_is_coming}</p>}
                                 <p className="text-xs text-slate-500">Staff No: {apt.staff_id}</p>
                                 {apt.nationwide_id && <p className="text-[10px] text-slate-400">Nationwide: {apt.nationwide_id}</p>}
                               </td>
@@ -369,6 +370,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                               </td>
                               <td className="px-6 py-4">
                                 <p className="text-sm font-medium">{apt.doctor_name || 'Unassigned'}</p>
+                                {apt.service && <p className="text-[10px] text-slate-500 font-bold uppercase">{apt.service}</p>}
                               </td>
                               <td className="px-6 py-4">
                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide ${getStatusStyles(apt.status)}`}>
@@ -533,6 +535,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                           <tr key={apt.id}>
                             <td className="px-6 py-4">
                               <p className="font-bold text-sm">{apt.full_name}</p>
+                              {apt.who_is_coming && <p className="text-xs text-indigo-600 font-bold">For: {apt.who_is_coming}</p>}
                               <p className="text-xs text-slate-500">{apt.email}</p>
                             </td>
                             <td className="px-6 py-4 text-sm">
@@ -540,6 +543,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                             </td>
                             <td className="px-6 py-4 text-sm font-medium">
                               {apt.doctor_name || 'Not Assigned'}
+                              {apt.service && <p className="text-[10px] text-slate-500 font-bold uppercase block mt-1">{apt.service}</p>}
                             </td>
                             <td className="px-6 py-4">
                               <span className={`text-xs font-bold ${apt.priority === 'High' ? 'text-red-500' : apt.priority === 'Medium' ? 'text-amber-500' : 'text-blue-500'}`}>
@@ -679,6 +683,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                           </td>
                           <td className="px-6 py-4">
                             <p className="font-bold text-sm">{apt.full_name}</p>
+                            {apt.who_is_coming && <p className="text-xs text-indigo-600 font-bold">For: {apt.who_is_coming}</p>}
                             <p className="text-xs text-slate-500">Staff No: {apt.staff_id}</p>
                             {apt.nationwide_id && <p className="text-[10px] text-slate-400">Nationwide: {apt.nationwide_id}</p>}
                           </td>

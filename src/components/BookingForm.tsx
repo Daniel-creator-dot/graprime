@@ -24,6 +24,7 @@ import StatusModal from './StatusModal';
 
 const INITIAL_DATA: AppointmentData = {
   fullName: '',
+  whoIsComing: '',
   phoneNumber: '',
   email: '',
   staffId: '',
@@ -32,6 +33,7 @@ const INITIAL_DATA: AppointmentData = {
   reason: '',
   preferredDate: '',
   preferredTime: '',
+  service: '',
   staffToSee: '',
   appointmentType: 'Consultation',
   priority: 'Medium',
@@ -61,7 +63,8 @@ export default function BookingForm() {
     const newErrors: Partial<Record<keyof AppointmentData, string>> = {};
     
     if (currentStep === 'basic') {
-      if (!formData.fullName) newErrors.fullName = 'Who is coming is required';
+      if (!formData.fullName) newErrors.fullName = 'Full Name is required';
+      if (!formData.whoIsComing) newErrors.whoIsComing = 'Who is coming is required';
       if (!formData.email) newErrors.email = 'Email is required';
       if (!formData.staffId) newErrors.staffId = 'Staff number is required';
       if (!formData.nationwideId) newErrors.nationwideId = 'Nationwide membership no. is required';
@@ -169,12 +172,19 @@ export default function BookingForm() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <InputField 
-                    label="Who is coming" 
-                    placeholder="e.g., wife, family, name"
+                    label="Full Name" 
                     icon={<User className="w-4 h-4" />}
                     value={formData.fullName}
                     onChange={(v) => updateField('fullName', v)}
                     error={errors.fullName}
+                  />
+                  <InputField 
+                    label="Who is coming" 
+                    placeholder="e.g., wife, family, name"
+                    icon={<User className="w-4 h-4" />}
+                    value={formData.whoIsComing}
+                    onChange={(v) => updateField('whoIsComing', v)}
+                    error={errors.whoIsComing}
                   />
                   <InputField 
                     label="Staff number" 
@@ -294,6 +304,27 @@ export default function BookingForm() {
                       <option>General</option>
                     </select>
                   </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Service / Specialty</label>
+                    <select 
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none"
+                      value={formData.service}
+                      onChange={(e) => updateField('service', e.target.value)}
+                    >
+                      <option value="">Select a Service</option>
+                      <option value="Physio">Physio - Monday and Friday</option>
+                      <option value="Dietician">Dietician - Tuesday</option>
+                      <option value="Surgical">Surgical - Tuesday</option>
+                      <option value="Psychiatry">Psychiatry - Tuesday and Thursday</option>
+                      <option value="Urology">Urology - 2nd Wednesday of every month</option>
+                      <option value="Physician specialties">Physician specialties - 2nd Wednesday of every month</option>
+                      <option value="Dental">Dental - Wednesday</option>
+                      <option value="Ent">Ent - Friday</option>
+                      <option value="Eye">Eye - Saturday</option>
+                      <option value="Pediatric">Pediatric - Thursday</option>
+                      <option value="ANC/Gynae">ANC/Gynae - Thursday</option>
+                    </select>
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -352,8 +383,12 @@ export default function BookingForm() {
                   <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
                     <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
                       <div>
-                        <p className="text-slate-400 font-medium">Who is coming</p>
+                        <p className="text-slate-400 font-medium">Full Name</p>
                         <p className="font-bold">{formData.fullName}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400 font-medium">Who is coming</p>
+                        <p className="font-bold">{formData.whoIsComing}</p>
                       </div>
                       <div>
                         <p className="text-slate-400 font-medium">Staff number</p>
@@ -370,6 +405,10 @@ export default function BookingForm() {
                       <div>
                         <p className="text-slate-400 font-medium">To See</p>
                         <p className="font-bold">{formData.staffToSee || 'Not specified'}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400 font-medium">Service / Specialty</p>
+                        <p className="font-bold">{formData.service || 'Not specified'}</p>
                       </div>
                       <div className="col-span-2 pt-2 border-t border-slate-200">
                         <p className="text-slate-400 font-medium">Reason</p>

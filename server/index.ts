@@ -258,8 +258,8 @@ app.get('/api/appointments', async (req, res) => {
 
 app.post('/api/appointments', async (req, res) => {
   const { 
-    fullName, phoneNumber, email, staffId, nationwideId, department, 
-    reason, preferredDate, preferredTime, priority, notes, doctor_id 
+    fullName, whoIsComing, phoneNumber, email, staffId, nationwideId, department, 
+    reason, preferredDate, preferredTime, priority, notes, doctor_id, service
   } = req.body;
   
   try {
@@ -284,13 +284,13 @@ app.post('/api/appointments', async (req, res) => {
 
     const result = await query(`
       INSERT INTO appointments (
-        appointment_id, patient_id, full_name, phone_number, email, staff_id, nationwide_id,
-        department, notes, preferred_date, preferred_time, priority, doctor_id
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+        appointment_id, patient_id, full_name, who_is_coming, phone_number, email, staff_id, nationwide_id,
+        department, notes, preferred_date, preferred_time, priority, doctor_id, service
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       RETURNING *
     `, [
-      appointmentId, patient.id, fullName, phoneNumber, email, staffId, nationwideId,
-      department, reason + (notes ? ' | ' + notes : ''), preferredDate, preferredTime, priority, doctor_id
+      appointmentId, patient.id, fullName, whoIsComing, phoneNumber, email, staffId, nationwideId,
+      department, reason + (notes ? ' | ' + notes : ''), preferredDate, preferredTime, priority, doctor_id, service
     ]);
 
     // Real SMS Sending
