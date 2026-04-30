@@ -16,7 +16,8 @@ import {
   Settings,
   LogOut,
   ChevronRight,
-  Pencil
+  Pencil,
+  ShieldCheck
 } from 'lucide-react';
 import { appointmentsApi, analyticsApi, doctorsApi, notificationsApi, usersApi, settingsApi } from '../api/client';
 import { motion, AnimatePresence } from 'motion/react';
@@ -552,9 +553,14 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                               {apt.service && <p className="text-[10px] text-slate-500 font-bold uppercase block mt-1">{apt.service}</p>}
                             </td>
                             <td className="px-6 py-4">
-                              <span className={`text-xs font-bold ${apt.priority === 'High' ? 'text-red-500' : apt.priority === 'Medium' ? 'text-amber-500' : 'text-blue-500'}`}>
-                                {apt.priority}
-                              </span>
+                              {apt.priority === 'High' ? (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-700 uppercase tracking-widest border border-amber-200">
+                                  <ShieldCheck className="w-3 h-3" />
+                                  Priority
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Standard</span>
+                              )}
                             </td>
                             <td className="px-6 py-4">
                               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide ${getStatusStyles(apt.status)}`}>
@@ -1210,16 +1216,22 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Priority Service</label>
-                <select 
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl"
-                  value={formData.priority}
-                  onChange={(e) => setFormData({...formData, priority: e.target.value})}
+                <button 
+                  type="button"
+                  onClick={() => setFormData({...formData, priority: formData.priority === 'High' ? 'Low' : 'High'})}
+                  className={`w-full px-4 py-2.5 rounded-xl border-2 transition-all font-bold text-xs flex items-center justify-between ${
+                    formData.priority === 'High' 
+                      ? 'bg-amber-50 border-amber-500 text-amber-700' 
+                      : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-300'
+                  }`}
                 >
-                  <option value="Low">Low</option>
-                  <option value="Medium">Medium</option>
-                  <option value="High">High</option>
-                  <option value="Urgent">Urgent</option>
-                </select>
+                  <span>Priority Service</span>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    formData.priority === 'High' ? 'bg-amber-500 border-amber-500' : 'border-slate-300'
+                  }`}>
+                    {formData.priority === 'High' && <CheckCircle2 className="w-3 h-3 text-white" />}
+                  </div>
+                </button>
               </div>
               <div>
                 <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Current Status</label>

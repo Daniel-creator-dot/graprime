@@ -351,21 +351,25 @@ export default function BookingForm() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">Priority Service</label>
-                      <div className="flex gap-2">
-                        {(['Low', 'Medium', 'High'] as PriorityLevel[]).map((p) => (
-                          <button
-                            key={p}
-                            onClick={() => updateField('priority', p)}
-                            className={`flex-1 py-3 px-2 rounded-xl border-2 transition-all font-medium ${
-                              formData.priority === p 
-                                ? 'bg-indigo-50 border-indigo-500 text-indigo-700' 
-                                : 'bg-transparent border-slate-200 text-slate-500 hover:border-slate-300'
-                            }`}
-                          >
-                            {p}
-                          </button>
-                        ))}
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => updateField('priority', formData.priority === 'High' ? 'Low' : 'High')}
+                        className={`w-full py-4 px-6 rounded-2xl border-2 transition-all font-bold flex items-center justify-between ${
+                          formData.priority === 'High' 
+                            ? 'bg-amber-50 border-amber-500 text-amber-700 shadow-lg shadow-amber-200/50' 
+                            : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300'
+                        }`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <ShieldCheck className={`w-5 h-5 ${formData.priority === 'High' ? 'text-amber-500' : 'text-slate-400'}`} />
+                          This is a priority service
+                        </span>
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                          formData.priority === 'High' ? 'bg-amber-500 border-amber-500' : 'border-slate-300'
+                        }`}>
+                          {formData.priority === 'High' && <CheckCircle2 className="w-4 h-4 text-white" />}
+                        </div>
+                      </button>
                     </div>
                   </div>
                 </div>
