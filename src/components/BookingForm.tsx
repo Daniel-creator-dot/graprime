@@ -37,7 +37,7 @@ const INITIAL_DATA: AppointmentData = {
   service: '',
   staffToSee: '',
   appointmentType: 'Consultation',
-  priority: 'Medium',
+  priority: 'High',
   previousVisit: false,
   notes: '',
   preferredContact: 'SMS',
@@ -351,25 +351,10 @@ export default function BookingForm() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">Priority Service</label>
-                      <button
-                        type="button"
-                        onClick={() => updateField('priority', formData.priority === 'High' ? 'Low' : 'High')}
-                        className={`w-full py-4 px-6 rounded-2xl border-2 transition-all font-bold flex items-center justify-between ${
-                          formData.priority === 'High' 
-                            ? 'bg-amber-50 border-amber-500 text-amber-700 shadow-lg shadow-amber-200/50' 
-                            : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300'
-                        }`}
-                      >
-                        <span className="flex items-center gap-3">
-                          <ShieldCheck className={`w-5 h-5 ${formData.priority === 'High' ? 'text-amber-500' : 'text-slate-400'}`} />
-                          This is a priority service
-                        </span>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                          formData.priority === 'High' ? 'bg-amber-500 border-amber-500' : 'border-slate-300'
-                        }`}>
-                          {formData.priority === 'High' && <CheckCircle2 className="w-4 h-4 text-white" />}
-                        </div>
-                      </button>
+                      <div className="w-full py-4 px-6 rounded-2xl border-2 border-amber-200 bg-amber-50 text-amber-700 font-bold flex items-center gap-3">
+                        <ShieldCheck className="w-5 h-5 text-amber-500" />
+                        <span>This is a priority service</span>
+                      </div>
                     </div>
                   </div>
                 </div>

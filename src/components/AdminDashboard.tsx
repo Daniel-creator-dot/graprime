@@ -1215,23 +1215,11 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Priority Service</label>
-                <button 
-                  type="button"
-                  onClick={() => setFormData({...formData, priority: formData.priority === 'High' ? 'Low' : 'High'})}
-                  className={`w-full px-4 py-2.5 rounded-xl border-2 transition-all font-bold text-xs flex items-center justify-between ${
-                    formData.priority === 'High' 
-                      ? 'bg-amber-50 border-amber-500 text-amber-700' 
-                      : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-300'
-                  }`}
-                >
-                  <span>Priority Service</span>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                    formData.priority === 'High' ? 'bg-amber-500 border-amber-500' : 'border-slate-300'
-                  }`}>
-                    {formData.priority === 'High' && <CheckCircle2 className="w-3 h-3 text-white" />}
-                  </div>
-                </button>
+                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Priority Service Status</label>
+                <div className="w-full px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-amber-500" />
+                  <span className="text-xs font-bold text-amber-700">Priority Service Active</span>
+                </div>
               </div>
               <div>
                 <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Current Status</label>
