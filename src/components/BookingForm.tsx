@@ -14,7 +14,9 @@ import {
   CheckCircle2,
   AlertCircle,
   Hash,
-  UserCheck
+  UserCheck,
+  Plus,
+  Trash2
 } from 'lucide-react';
 import graLogo from '../gra.png';
 import graaLogo from '../graa.png';
@@ -25,7 +27,7 @@ import StatusModal from './StatusModal';
 
 const INITIAL_DATA: AppointmentData = {
   fullName: '',
-  whoIsComing: '',
+  whoIsComing: [],
   phoneNumber: '',
   email: '',
   staffId: '',
@@ -97,7 +99,11 @@ export default function BookingForm() {
   const handleBooking = async () => {
     try {
       setIsSubmitting(true);
-      const response = await appointmentsApi.create(formData);
+      const submissionData = {
+        ...formData,
+        whoIsComing: formData.whoIsComing.filter(v => v.trim() !== '').join(', ')
+      };
+      const response = await appointmentsApi.create(submissionData);
       const now = new Date();
       setFormData({
         ...formData,
@@ -181,14 +187,56 @@ export default function BookingForm() {
                     onChange={(v) => updateField('fullName', v)}
                     error={errors.fullName}
                   />
-                  <InputField 
-                    label="Who is coming (Optional)" 
-                    placeholder="e.g., wife, family, name"
-                    icon={<User className="w-4 h-4" />}
-                    value={formData.whoIsComing}
-                    onChange={(v) => updateField('whoIsComing', v)}
-                    error={errors.whoIsComing}
-                  />
+                  <div className="md:col-span-2 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-sm font-semibold text-slate-700">Who is coming with you? (Optional)</label>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            whoIsComing: [...prev.whoIsComing, '']
+                          }));
+                        }}
+                        className="flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
+                      >
+                        <Plus className="w-3 h-3" />
+                        Add Dependant
+                      </button>
+                    </div>
+                    
+                    {formData.whoIsComing.length === 0 ? (
+                      <p className="text-sm text-slate-400 italic">No dependants added. Click "Add Dependant" if you are coming with someone.</p>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {formData.whoIsComing.map((dependant, index) => (
+                          <div key={index} className="relative group">
+                            <InputField 
+                              label={`Dependant ${index + 1}`} 
+                              placeholder="e.g., Wife, Child name"
+                              icon={<User className="w-4 h-4" />}
+                              value={dependant}
+                              onChange={(v) => {
+                                const newList = [...formData.whoIsComing];
+                                newList[index] = v;
+                                updateField('whoIsComing', newList);
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newList = formData.whoIsComing.filter((_, i) => i !== index);
+                                updateField('whoIsComing', newList);
+                              }}
+                              className="absolute right-2 top-[38px] p-1.5 text-slate-400 hover:text-red-500 transition-colors bg-white rounded-lg shadow-sm border border-slate-100"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <InputField 
                     label="Staff number" 
                     icon={<Hash className="w-4 h-4" />}
@@ -383,7 +431,7 @@ export default function BookingForm() {
                       </div>
                       <div>
                         <p className="text-slate-400 font-medium">Who is coming</p>
-                        <p className="font-bold">{formData.whoIsComing}</p>
+                        <p className="font-bold">{formData.whoIsComing.filter(v => v.trim() !== '').join(', ') || 'Self'}</p>
                       </div>
                       <div>
                         <p className="text-slate-400 font-medium">Staff number</p>
