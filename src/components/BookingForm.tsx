@@ -142,10 +142,10 @@ export default function BookingForm() {
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <header className="mb-10 text-center">
-          <div className="flex justify-center items-center gap-8 mb-6">
-            <img src={graaLogo} alt="GRAA Logo" className="h-16 w-auto object-contain" />
-            <div className="h-12 w-px bg-slate-200" />
-            <img src={graLogo} alt="GRA Logo" className="h-16 w-auto object-contain" />
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 mb-6">
+            <img src={graaLogo} alt="GRAA Logo" className="h-12 sm:h-16 w-auto object-contain" />
+            <div className="hidden sm:block h-12 w-px bg-slate-200" />
+            <img src={graLogo} alt="GRA Logo" className="h-12 sm:h-16 w-auto object-contain" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">Custom Staff Association</h1>
           <p className="mt-2 text-slate-500 font-medium">In partnership with Prime Care</p>
@@ -424,7 +424,7 @@ export default function BookingForm() {
                 
                 <div className="space-y-4">
                   <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
                       <div>
                         <p className="text-slate-400 font-medium">Full Name</p>
                         <p className="font-bold">{formData.fullName}</p>
@@ -491,7 +491,7 @@ export default function BookingForm() {
                     <p className="text-indigo-400 text-xs font-bold uppercase tracking-widest mb-1">Appointment ID</p>
                     <p className="text-3xl font-mono font-bold tracking-tighter">{formData.appointmentId}</p>
                   </div>
-                  <div className="mt-6 pt-6 border-t border-slate-800 grid grid-cols-2 text-left gap-4">
+                  <div className="mt-6 pt-6 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-2 text-left gap-4">
                     <div>
                       <p className="text-slate-500 text-xs uppercase font-medium">Status</p>
                       <p className="text-green-400 font-bold text-sm">CONFIRMED</p>
