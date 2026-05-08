@@ -84,7 +84,7 @@ export const initDb = async () => {
         appointment_id VARCHAR(20) UNIQUE NOT NULL,
         patient_id INTEGER REFERENCES patients(id),
         full_name VARCHAR(100) NOT NULL, -- Fallback if not registered
-        who_is_coming TEXT,
+        who_is_coming TEXT[],
         email VARCHAR(100),
         phone_number VARCHAR(20) NOT NULL,
         staff_id VARCHAR(50),
@@ -118,9 +118,12 @@ export const initDb = async () => {
           ALTER TABLE appointments ADD COLUMN nationwide_id VARCHAR(50);
         END IF;
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='who_is_coming') THEN
-          ALTER TABLE appointments ADD COLUMN who_is_coming TEXT;
+          ALTER TABLE appointments ADD COLUMN who_is_coming TEXT[];
         ELSE
-          ALTER TABLE appointments ALTER COLUMN who_is_coming TYPE TEXT;
+          -- Use a more robust check to see if it's already an array
+          IF (SELECT data_type FROM information_schema.columns WHERE table_name='appointments' AND column_name='who_is_coming') = 'text' THEN
+            ALTER TABLE appointments ALTER COLUMN who_is_coming TYPE TEXT[] USING string_to_array(who_is_coming, ', ');
+          END IF;
         END IF;
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='service') THEN
           ALTER TABLE appointments ADD COLUMN service VARCHAR(100);

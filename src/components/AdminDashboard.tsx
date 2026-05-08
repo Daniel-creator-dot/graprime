@@ -367,7 +367,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                             <tr key={apt.id} className="hover:bg-slate-50/50 transition-colors">
                               <td className="px-6 py-4">
                                 <p className="font-bold text-sm">{apt.full_name}</p>
-                                {apt.who_is_coming && <p className="text-xs text-indigo-600 font-bold">For: {apt.who_is_coming}</p>}
+                                {apt.who_is_coming && <p className="text-xs text-indigo-600 font-bold">For: {Array.isArray(apt.who_is_coming) ? apt.who_is_coming.join(', ') : apt.who_is_coming}</p>}
                                 <p className="text-xs text-slate-500">Staff No: {apt.staff_id}</p>
                                 {apt.nationwide_id && <p className="text-[10px] text-slate-400">Nationwide: {apt.nationwide_id}</p>}
                               </td>
@@ -542,7 +542,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                           <tr key={apt.id}>
                             <td className="px-6 py-4">
                               <p className="font-bold text-sm">{apt.full_name}</p>
-                              {apt.who_is_coming && <p className="text-xs text-indigo-600 font-bold">For: {apt.who_is_coming}</p>}
+                                {apt.who_is_coming && <p className="text-xs text-indigo-600 font-bold">For: {Array.isArray(apt.who_is_coming) ? apt.who_is_coming.join(', ') : apt.who_is_coming}</p>}
                               <p className="text-xs text-slate-500">{apt.email}</p>
                             </td>
                             <td className="px-6 py-4 text-sm">
@@ -695,7 +695,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                           </td>
                           <td className="px-6 py-4">
                             <p className="font-bold text-sm">{apt.full_name}</p>
-                            {apt.who_is_coming && <p className="text-xs text-indigo-600 font-bold">For: {apt.who_is_coming}</p>}
+                            {apt.who_is_coming && <p className="text-xs text-indigo-600 font-bold">For: {Array.isArray(apt.who_is_coming) ? apt.who_is_coming.join(', ') : apt.who_is_coming}</p>}
                             <p className="text-xs text-slate-500">Staff No: {apt.staff_id}</p>
                             {apt.nationwide_id && <p className="text-[10px] text-slate-400">Nationwide: {apt.nationwide_id}</p>}
                           </td>
@@ -1106,7 +1106,7 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
         doctor_id: appointment.doctor_id || '',
         priority: appointment.priority,
         status: appointment.status,
-        who_is_coming: appointment.who_is_coming || '',
+        who_is_coming: Array.isArray(appointment.who_is_coming) ? appointment.who_is_coming.join(', ') : (appointment.who_is_coming || ''),
         service: appointment.service || ''
       });
     }
@@ -1118,7 +1118,11 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
     e.preventDefault();
     setLoading(true);
     try {
-      await appointmentsApi.update(appointment.id, formData);
+      const submissionData = {
+        ...formData,
+        who_is_coming: formData.who_is_coming.split(',').map(s => s.trim()).filter(s => s !== '')
+      };
+      await appointmentsApi.update(appointment.id, submissionData);
       onSuccess();
       onClose();
     } catch (err) {

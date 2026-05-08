@@ -101,7 +101,7 @@ export default function BookingForm() {
       setIsSubmitting(true);
       const submissionData = {
         ...formData,
-        whoIsComing: formData.whoIsComing.filter(v => v.trim() !== '').join(', ')
+        whoIsComing: formData.whoIsComing.filter(v => v.trim() !== '')
       };
       const response = await appointmentsApi.create(submissionData);
       const now = new Date();
