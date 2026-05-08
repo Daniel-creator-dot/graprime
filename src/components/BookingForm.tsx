@@ -173,7 +173,7 @@ export default function BookingForm() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="p-8"
+                className="p-4 sm:p-8"
               >
                 <div className="flex items-center gap-3 mb-6">
                   <User className="w-5 h-5 text-indigo-600" />
@@ -292,7 +292,7 @@ export default function BookingForm() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="p-8"
+                className="p-4 sm:p-8"
               >
                 <div className="flex items-center gap-3 mb-6">
                   <Clock className="w-5 h-5 text-indigo-600" />
@@ -389,7 +389,7 @@ export default function BookingForm() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="p-8"
+                className="p-4 sm:p-8"
               >
                 <div className="flex items-center gap-3 mb-6">
                   <MessageSquare className="w-5 h-5 text-indigo-600" />
@@ -415,7 +415,7 @@ export default function BookingForm() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="p-8"
+                className="p-4 sm:p-8"
               >
                 <div className="flex items-center gap-3 mb-6">
                   <ShieldCheck className="w-5 h-5 text-indigo-600" />
@@ -423,7 +423,7 @@ export default function BookingForm() {
                 </div>
                 
                 <div className="space-y-4">
-                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                  <div className="p-4 sm:p-6 bg-slate-50 rounded-2xl border border-slate-200">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
                       <div>
                         <p className="text-slate-400 font-medium">Full Name</p>
@@ -453,7 +453,7 @@ export default function BookingForm() {
                         <p className="text-slate-400 font-medium">Service / Specialty</p>
                         <p className="font-bold">{formData.service || 'Not specified'}</p>
                       </div>
-                      <div className="col-span-2 pt-2 border-t border-slate-200">
+                      <div className="col-span-1 sm:col-span-2 pt-2 border-t border-slate-200">
                         <p className="text-slate-400 font-medium">Reason</p>
                         <p className="text-slate-700">{formData.reason || 'Not specified'}</p>
                       </div>
@@ -473,7 +473,7 @@ export default function BookingForm() {
                 key="success"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-12 text-center"
+                className="p-6 sm:p-12 text-center"
               >
                 <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 text-green-600 rounded-full mb-6">
                   <CheckCircle2 className="w-10 h-10" />
@@ -522,7 +522,7 @@ export default function BookingForm() {
           </AnimatePresence>
 
           {step !== 'success' && (
-            <div className="p-8 bg-slate-50 border-t border-slate-200 flex justify-between gap-4">
+            <div className="p-4 sm:p-8 bg-slate-50 border-t border-slate-200 flex justify-between gap-4">
               <button
                 onClick={prevStep}
                 disabled={step === 'basic'}
