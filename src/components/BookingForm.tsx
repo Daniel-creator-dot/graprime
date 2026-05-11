@@ -30,7 +30,6 @@ const INITIAL_DATA: AppointmentData = {
   whoIsComing: [],
   phoneNumber: '',
   email: '',
-  staffId: '',
   nationwideId: '',
   department: '',
   reason: '',
@@ -67,8 +66,6 @@ export default function BookingForm() {
     
     if (currentStep === 'basic') {
       if (!formData.fullName) newErrors.fullName = 'Full Name is required';
-      if (!formData.email) newErrors.email = 'Email is required';
-      if (!formData.staffId) newErrors.staffId = 'Staff number is required';
       if (!formData.nationwideId) newErrors.nationwideId = 'Nationwide membership no. is required';
       if (!formData.phoneNumber) newErrors.phoneNumber = 'Phone Number is required';
     }
@@ -143,9 +140,9 @@ export default function BookingForm() {
         {/* Header */}
         <header className="mb-10 text-center">
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 mb-6">
-            <img src={graaLogo} alt="GRAA Logo" className="h-12 sm:h-16 w-auto object-contain" />
+            <img src={graaLogo} alt="CSAA Logo" className="h-12 sm:h-16 w-auto object-contain" />
             <div className="hidden sm:block h-12 w-px bg-slate-200" />
-            <img src={graLogo} alt="GRA Logo" className="h-12 sm:h-16 w-auto object-contain" />
+            <img src={graLogo} alt="CSA Logo" className="h-12 sm:h-16 w-auto object-contain" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">Custom Staff Association</h1>
           <p className="mt-2 text-slate-500 font-medium">In partnership with Prime Care</p>
@@ -237,13 +234,6 @@ export default function BookingForm() {
                       </div>
                     )}
                   </div>
-                  <InputField 
-                    label="Staff number" 
-                    icon={<Hash className="w-4 h-4" />}
-                    value={formData.staffId}
-                    onChange={(v) => updateField('staffId', v)}
-                    error={errors.staffId}
-                  />
                   <InputField 
                     label="Nationwide membership no." 
                     icon={<Hash className="w-4 h-4" />}
@@ -432,10 +422,6 @@ export default function BookingForm() {
                       <div>
                         <p className="text-slate-400 font-medium">Who is coming</p>
                         <p className="font-bold">{formData.whoIsComing.filter(v => v.trim() !== '').join(', ') || 'Self'}</p>
-                      </div>
-                      <div>
-                        <p className="text-slate-400 font-medium">Staff number</p>
-                        <p className="font-bold">{formData.staffId}</p>
                       </div>
                       <div>
                         <p className="text-slate-400 font-medium">Nationwide membership no.</p>

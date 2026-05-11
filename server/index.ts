@@ -57,7 +57,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     await query('DELETE FROM otps WHERE username = $1', [username]);
     await query('INSERT INTO otps (username, code, expires_at) VALUES ($1, $2, $3)', [username, otp, expiresAt]);
 
-    await sendSMS(user.phone_number, `Your GRA Health Portal password reset code is: ${otp}. It expires in 10 minutes.`);
+    await sendSMS(user.phone_number, `Your CSA Health Portal password reset code is: ${otp}. It expires in 10 minutes.`);
 
     res.json({ message: 'OTP sent to registered phone number.' });
   } catch (err) {
@@ -262,9 +262,16 @@ app.post('/api/appointments', async (req, res) => {
     reason, preferredDate, preferredTime, priority, notes, doctor_id, service
   } = req.body;
   
+  const effectiveStaffId = staffId || null;
+  
   try {
-    // 1. Check if patient is restricted
-    const patientResult = await query('SELECT * FROM patients WHERE staff_id = $1', [staffId]);
+    // 1. Check if patient exists (by staffId if available, else by phoneNumber)
+    let patientResult;
+    if (effectiveStaffId) {
+      patientResult = await query('SELECT * FROM patients WHERE staff_id = $1', [effectiveStaffId]);
+    } else {
+      patientResult = await query('SELECT * FROM patients WHERE phone_number = $1', [phoneNumber]);
+    }
     let patient = patientResult.rows[0];
 
     if (patient && patient.is_restricted) {
@@ -276,7 +283,7 @@ app.post('/api/appointments', async (req, res) => {
       const newPatient = await query(`
         INSERT INTO patients (staff_id, nationwide_id, full_name, email, phone_number, department)
         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *
-      `, [staffId, nationwideId, fullName, email, phoneNumber, department]);
+      `, [effectiveStaffId, nationwideId, fullName, email, phoneNumber, department]);
       patient = newPatient.rows[0];
     }
 
