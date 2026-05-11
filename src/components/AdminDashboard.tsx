@@ -368,7 +368,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                               <td className="px-6 py-4">
                                 <p className="font-bold text-sm">{apt.full_name}</p>
                                 {apt.who_is_coming && <p className="text-xs text-indigo-600 font-bold">For: {Array.isArray(apt.who_is_coming) ? apt.who_is_coming.join(', ') : apt.who_is_coming}</p>}
-                                <p className="text-xs text-slate-500">Staff No: {apt.staff_id}</p>
+                                {apt.staff_id && <p className="text-xs text-slate-500">Staff No: {apt.staff_id}</p>}
                                 {apt.nationwide_id && <p className="text-[10px] text-slate-400">Nationwide: {apt.nationwide_id}</p>}
                               </td>
                               <td className="px-6 py-4">
@@ -696,7 +696,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                           <td className="px-6 py-4">
                             <p className="font-bold text-sm">{apt.full_name}</p>
                             {apt.who_is_coming && <p className="text-xs text-indigo-600 font-bold">For: {Array.isArray(apt.who_is_coming) ? apt.who_is_coming.join(', ') : apt.who_is_coming}</p>}
-                            <p className="text-xs text-slate-500">Staff No: {apt.staff_id}</p>
+                            {apt.staff_id && <p className="text-xs text-slate-500">Staff No: {apt.staff_id}</p>}
                             {apt.nationwide_id && <p className="text-[10px] text-slate-400">Nationwide: {apt.nationwide_id}</p>}
                           </td>
                           <td className="px-6 py-4 text-sm font-medium">

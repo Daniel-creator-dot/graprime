@@ -243,7 +243,7 @@ export default function BookingForm() {
                     error={errors.nationwideId}
                   />
                   <InputField 
-                    label="Email Address" 
+                    label="Email Address (Optional)" 
                     icon={<Mail className="w-4 h-4" />}
                     type="email"
                     value={formData.email}
