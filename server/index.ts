@@ -331,9 +331,7 @@ app.get('/api/appointments/my', authenticate, async (req: any, res) => {
 });
 
 app.post('/api/appointments', async (req, res) => {
-  const { 
-    fullName, whoIsComing, phoneNumber, email, staffId, nationwideId, department, 
-    reason, preferredDate, preferredTime, priority, notes, doctor_id, service
+    reason, preferredDate, preferredTime, priority, notes, doctor_id, service, isTelemedicine
   } = req.body;
   
   const effectiveStaffId = staffId || null;
@@ -366,12 +364,12 @@ app.post('/api/appointments', async (req, res) => {
     const result = await query(`
       INSERT INTO appointments (
         appointment_id, patient_id, full_name, who_is_coming, phone_number, email, staff_id, nationwide_id,
-        department, notes, preferred_date, preferred_time, priority, doctor_id, service
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+        department, notes, preferred_date, preferred_time, priority, doctor_id, service, is_telemedicine
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
       RETURNING *
     `, [
       appointmentId, patient.id, fullName, whoIsComing, phoneNumber, email, staffId, nationwideId,
-      department, reason + (notes ? ' | ' + notes : ''), preferredDate, preferredTime, priority, doctor_id, service
+      department, reason + (notes ? ' | ' + notes : ''), preferredDate, preferredTime, priority, doctor_id, service, !!isTelemedicine
     ]);
 
     // Real SMS Sending
@@ -398,7 +396,7 @@ app.post('/api/appointments', async (req, res) => {
 
 app.patch('/api/appointments/:id', async (req, res) => {
   const { id } = req.params;
-  const { preferred_date, preferred_time, notes, doctor_id, priority, status, who_is_coming, service } = req.body;
+  const { preferred_date, preferred_time, notes, doctor_id, priority, status, who_is_coming, service, is_telemedicine } = req.body;
   try {
     const finalDoctorId = doctor_id === '' ? null : doctor_id;
 
@@ -412,9 +410,10 @@ app.patch('/api/appointments/:id', async (req, res) => {
            status = COALESCE($6::varchar, status),
            who_is_coming = COALESCE($7, who_is_coming),
            service = COALESCE($8, service),
+           is_telemedicine = COALESCE($9, is_telemedicine),
            completed_at = CASE WHEN $6::varchar = 'completed' THEN CURRENT_TIMESTAMP ELSE completed_at END
-       WHERE id = $9 RETURNING *`,
-      [preferred_date, preferred_time, notes, finalDoctorId, priority, status, who_is_coming, service, id]
+       WHERE id = $10 RETURNING *`,
+      [preferred_date, preferred_time, notes, finalDoctorId, priority, status, who_is_coming, service, is_telemedicine, id]
     );
     const apt = result.rows[0];
     // Trigger SMS Alerts
