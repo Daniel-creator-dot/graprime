@@ -72,7 +72,8 @@ export default function BookingForm() {
         fullName: user.name || prev.fullName,
         phoneNumber: user.phone_number || prev.phoneNumber,
         email: user.email || prev.email,
-        createdBy: user.name || prev.createdBy
+        createdBy: user.name || prev.createdBy,
+        isTelemedicine: true
       }));
       setStep('basic');
     }
@@ -240,24 +241,38 @@ export default function BookingForm() {
                 exit={{ opacity: 0, x: -20 }}
                 className="p-4 sm:p-8"
               >
-                <div className="mb-8 flex p-1 bg-slate-100 rounded-2xl border border-slate-200">
-                  <button
-                    type="button"
-                    onClick={() => updateField('isTelemedicine', false)}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all ${!formData.isTelemedicine ? 'bg-white text-indigo-600 shadow-sm shadow-indigo-100' : 'text-slate-500 hover:text-slate-700'}`}
-                  >
-                    <User className="w-4 h-4" />
-                    In-Person Visit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => updateField('isTelemedicine', true)}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all ${formData.isTelemedicine ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-500 hover:text-slate-700'}`}
-                  >
-                    <ShieldCheck className="w-4 h-4" />
-                    Telemedicine (Online)
-                  </button>
-                </div>
+                {!localStorage.getItem('user') && (
+                  <div className="mb-8 flex p-1 bg-slate-100 rounded-2xl border border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => updateField('isTelemedicine', false)}
+                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all ${!formData.isTelemedicine ? 'bg-white text-indigo-600 shadow-sm shadow-indigo-100' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                      <User className="w-4 h-4" />
+                      In-Person Visit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateField('isTelemedicine', true)}
+                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all ${formData.isTelemedicine ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                      <ShieldCheck className="w-4 h-4" />
+                      Telemedicine (Online)
+                    </button>
+                  </div>
+                )}
+
+                {localStorage.getItem('user') && (
+                  <div className="mb-8 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center gap-4">
+                    <div className="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100">
+                      <Video className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-indigo-600 uppercase tracking-widest">Appointment Type</p>
+                      <p className="text-sm font-bold text-slate-900">Verified Telemedicine (Online) Consultation</p>
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center gap-3 mb-6">
                   <User className="w-5 h-5 text-indigo-600" />
                   <h2 className="text-xl font-bold">Basic Information</h2>
