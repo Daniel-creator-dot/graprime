@@ -652,22 +652,38 @@ return (
                                 </span>
                               </td>
                               <td className="px-6 py-4">
-                                <div className="flex gap-2">
-                                  <button onClick={() => updateStatus(apt.id, 'cancelled')} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg">
-                                    <XCircle className="w-4 h-4" />
-                                  </button>
-                                  <button onClick={() => updateStatus(apt.id, 'completed')} className="p-1.5 text-green-500 hover:bg-green-50 rounded-lg">
-                                    <CheckCircle2 className="w-4 h-4" />
-                                  </button>
-                                  {user?.role === 'doctor' && (
-                                    <button
-                                      onClick={() => { setPrescriptionApt(apt); setIsPrescriptionModalOpen(true); }}
-                                      className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg"
-                                      title="Write Prescription"
+                                <div className="flex flex-wrap gap-2">
+                                  {apt.is_telemedicine && apt.meeting_link && (
+                                    <a
+                                      href={apt.meeting_link}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg flex items-center gap-2 font-black text-[10px] uppercase tracking-wider shadow-lg shadow-indigo-100 transition-all"
                                     >
-                                      <FileText className="w-4 h-4" />
-                                    </button>
+                                      <Video className="w-4 h-4" />
+                                      JOIN
+                                    </a>
                                   )}
+                                  
+                                  {user?.role === 'doctor' && (
+                                    <>
+                                      <button 
+                                        onClick={() => setConsultationApt(apt)} 
+                                        className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                                        title="Open Consultation Workspace"
+                                      >
+                                        <ClipboardList className="w-4 h-4" />
+                                      </button>
+                                      <button
+                                        onClick={() => { setPrescriptionApt(apt); setIsPrescriptionModalOpen(true); }}
+                                        className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg"
+                                        title="Write Prescription"
+                                      >
+                                        <FileText className="w-4 h-4" />
+                                      </button>
+                                    </>
+                                  )}
+
                                   {(user?.role === 'admin' || user?.role === 'front_desk' || user?.role === 'doctor') && (
                                     <button
                                       onClick={() => { setEditingAppointment(apt); setIsAppointmentEditModalOpen(true); }}
@@ -675,6 +691,18 @@ return (
                                       title="Edit Appointment"
                                     >
                                       <Pencil className="w-4 h-4" />
+                                    </button>
+                                  )}
+
+                                  {(user?.role === 'admin' || user?.role === 'front_desk') && (
+                                    <button onClick={() => updateStatus(apt.id, 'cancelled')} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg" title="Cancel">
+                                      <XCircle className="w-4 h-4" />
+                                    </button>
+                                  )}
+                                  
+                                  {(user?.role === 'admin' || user?.role === 'front_desk') && (
+                                    <button onClick={() => updateStatus(apt.id, 'completed')} className="p-1.5 text-green-500 hover:bg-green-50 rounded-lg" title="Complete">
+                                      <CheckCircle2 className="w-4 h-4" />
                                     </button>
                                   )}
                                 </div>
