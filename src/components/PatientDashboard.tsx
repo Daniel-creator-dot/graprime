@@ -10,7 +10,10 @@ import {
   CheckCircle2, 
   AlertCircle,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  ClipboardList,
+  FileText,
+  Activity
 } from 'lucide-react';
 import { appointmentsApi } from '../api/client';
 import { motion, AnimatePresence } from 'motion/react';
@@ -19,7 +22,7 @@ import graaLogo from '../graa.png';
 import StatusModal from './StatusModal';
 import BookingForm from './BookingForm';
 
-type Tab = 'bookings' | 'calendar' | 'new-booking' | 'profile';
+type Tab = 'bookings' | 'calendar' | 'history' | 'profile' | 'new-booking';
 
 export default function PatientDashboard({ user, onLogout }: { user: any, onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState<Tab>('bookings');
@@ -102,11 +105,11 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
             Calendar Schedule
           </button>
           <button 
-            onClick={() => setActiveTab('new-booking')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'new-booking' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:bg-slate-50'}`}
+            onClick={() => setActiveTab('history')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'history' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}
           >
-            <CheckCircle2 className="w-5 h-5" />
-            Book New Session
+            <ClipboardList className="w-5 h-5" />
+            Medical History
           </button>
           <button 
             onClick={() => setActiveTab('profile')}
@@ -201,6 +204,13 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
                       {appointments.length}
                     </span>
                   </h3>
+                  <button 
+                    onClick={() => setActiveTab('new-booking')}
+                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    BOOK APPOINTMENT
+                  </button>
                 </div>
 
                 {loading ? (
@@ -352,6 +362,71 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
                       </div>
                     );
                   })}
+                </div>
+              </motion.section>
+            )}
+
+            {activeTab === 'history' && (
+              <motion.section 
+                key="history"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-8"
+              >
+                <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-sm">
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h3 className="text-2xl font-black">Medication Prescriptions</h3>
+                      <p className="text-slate-400 font-medium text-sm">View your prescribed treatments and dosages.</p>
+                    </div>
+                    <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
+                      <FileText className="w-6 h-6" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {appointments.filter(a => a.status === 'completed').length === 0 ? (
+                      <div className="p-12 text-center border-2 border-dashed border-slate-100 rounded-3xl">
+                        <Activity className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                        <p className="text-slate-400 font-bold">No active prescriptions found.</p>
+                        <p className="text-xs text-slate-300">Prescriptions will appear here after your session is completed.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-4">
+                        {appointments.filter(a => a.status === 'completed').map(apt => (
+                          <div key={apt.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                <FileText className="w-5 h-5 text-indigo-600" />
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-slate-900">General Treatment Plan</h4>
+                                <p className="text-xs text-slate-400">Prescribed on {new Date(apt.preferred_date).toLocaleDateString()}</p>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-black hover:bg-slate-50 transition-all">VIEW DOSAGE</button>
+                              <button className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all">DOWNLOAD PDF</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-sm">
+                  <h3 className="text-xl font-bold mb-6">Past Visit Notes</h3>
+                  <div className="space-y-4">
+                    {appointments.filter(a => a.status === 'completed').map(apt => (
+                      <div key={apt.id} className="p-4 border-l-4 border-indigo-500 bg-slate-50 rounded-r-2xl">
+                        <p className="text-xs font-black text-indigo-600 uppercase tracking-widest mb-1">{apt.service}</p>
+                        <p className="text-sm font-medium text-slate-600">{apt.notes || 'Routine checkup completed. Patient in good health.'}</p>
+                        <p className="text-[10px] text-slate-400 mt-2 font-bold">{new Date(apt.preferred_date).toLocaleDateString()}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </motion.section>
             )}

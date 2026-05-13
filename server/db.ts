@@ -216,6 +216,21 @@ export const initDb = async () => {
       );
     `);
 
+    // Create Prescriptions table
+    await query(`
+      CREATE TABLE IF NOT EXISTS prescriptions (
+        id SERIAL PRIMARY KEY,
+        appointment_id INTEGER REFERENCES appointments(id),
+        patient_id INTEGER REFERENCES patients(id),
+        medication_name VARCHAR(255) NOT NULL,
+        dosage VARCHAR(100),
+        frequency VARCHAR(100),
+        duration VARCHAR(100),
+        instructions TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     console.log('Database initialized successfully');
   } catch (err) {
     console.error('Error initializing database:', err);
