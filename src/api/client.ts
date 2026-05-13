@@ -65,3 +65,10 @@ export const settingsApi = {
   getAll: () => client.get('/settings'),
   update: (data: any) => client.patch('/settings', data),
 };
+
+export const prescriptionsApi = {
+  getAll: () => client.get('/prescriptions'),
+  getMy: () => client.get('/prescriptions/my'),
+  create: (data: any) => client.post('/prescriptions', data),
+  delete: (id: number) => client.delete(`/prescriptions/${id}`),
+};

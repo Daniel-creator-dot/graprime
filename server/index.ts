@@ -590,6 +590,70 @@ app.patch('/api/notifications/read', async (req, res) => {
   }
 });
 
+// --- Prescription Routes ---
+app.get('/api/prescriptions', authenticate, async (req: any, res) => {
+  try {
+    const result = await query(`
+      SELECT pr.*, a.appointment_id as apt_code, p.full_name as patient_name 
+      FROM prescriptions pr
+      JOIN appointments a ON pr.appointment_id = a.id
+      JOIN patients p ON pr.patient_id = p.id
+      ORDER BY pr.created_at DESC
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/prescriptions/my', authenticate, async (req: any, res) => {
+  try {
+    const userResult = await query('SELECT phone_number FROM users WHERE id = $1', [req.user.id]);
+    const phone = userResult.rows[0].phone_number;
+    const patientResult = await query('SELECT id FROM patients WHERE phone_number = $1', [phone]);
+    const patientId = patientResult.rows[0]?.id;
+
+    if (!patientId) return res.json([]);
+
+    const result = await query(`
+      SELECT pr.*, a.appointment_id as apt_code 
+      FROM prescriptions pr
+      JOIN appointments a ON pr.appointment_id = a.id
+      WHERE pr.patient_id = $1
+      ORDER BY pr.created_at DESC
+    `, [patientId]);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.post('/api/prescriptions', authenticate, async (req: any, res) => {
+  if (req.user.role === 'patient') return res.status(403).json({ message: 'Forbidden' });
+  
+  const { appointment_id, patient_id, medication_name, dosage, frequency, duration, instructions } = req.body;
+  try {
+    const result = await query(`
+      INSERT INTO prescriptions (appointment_id, patient_id, medication_name, dosage, frequency, duration, instructions)
+      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
+    `, [appointment_id, patient_id, medication_name, dosage, frequency, duration, instructions]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.delete('/api/prescriptions/:id', authenticate, async (req: any, res) => {
+  if (req.user.role === 'patient') return res.status(403).json({ message: 'Forbidden' });
+  try {
+    await query('DELETE FROM prescriptions WHERE id = $1', [req.params.id]);
+    res.json({ message: 'Prescription deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // --- Doctor Routes ---
 app.get('/api/doctors', async (req, res) => {
   try {

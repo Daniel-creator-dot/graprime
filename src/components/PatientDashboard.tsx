@@ -18,7 +18,7 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import { appointmentsApi } from '../api/client';
+import { appointmentsApi, prescriptionsApi } from '../api/client';
 import { motion, AnimatePresence } from 'motion/react';
 import graLogo from '../gra.png';
 import graaLogo from '../graa.png';
@@ -31,22 +31,39 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
   const [activeTab, setActiveTab] = useState<Tab>('bookings');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [appointments, setAppointments] = useState<any[]>([]);
+  const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
   const [statusModal, setStatusModal] = useState<any>({ isOpen: false, type: 'success', title: '', message: '' });
 
   useEffect(() => {
-    fetchAppointments();
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    await Promise.all([
+      fetchAppointments(),
+      fetchPrescriptions()
+    ]);
+    setLoading(false);
+  };
+
+  const fetchPrescriptions = async () => {
+    try {
+      const res = await prescriptionsApi.getMy();
+      setPrescriptions(res.data);
+    } catch (err) {
+      console.error('Error fetching prescriptions:', err);
+    }
+  };
 
   const fetchAppointments = async () => {
     try {
-      setLoading(true);
       const res = await appointmentsApi.getMyAppointments();
       setAppointments(res.data);
     } catch (err) {
       console.error('Error fetching appointments:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -433,7 +450,7 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
                   </div>
 
                   <div className="space-y-4">
-                    {appointments.filter(a => a.status === 'completed').length === 0 ? (
+                    {prescriptions.length === 0 ? (
                       <div className="p-12 text-center border-2 border-dashed border-slate-100 rounded-3xl">
                         <Activity className="w-12 h-12 text-slate-200 mx-auto mb-4" />
                         <p className="text-slate-400 font-bold">No active prescriptions found.</p>
@@ -441,20 +458,33 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 gap-4">
-                        {appointments.filter(a => a.status === 'completed').map(apt => (
-                          <div key={apt.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        {prescriptions.map(pr => (
+                          <div key={pr.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex items-center gap-4">
                               <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <FileText className="w-5 h-5 text-indigo-600" />
                               </div>
                               <div>
-                                <h4 className="font-bold text-slate-900">General Treatment Plan</h4>
-                                <p className="text-xs text-slate-400">Prescribed on {new Date(apt.preferred_date).toLocaleDateString()}</p>
+                                <h4 className="font-bold text-slate-900">{pr.medication_name}</h4>
+                                <p className="text-xs text-slate-400">Prescribed on {new Date(pr.created_at).toLocaleDateString()} • {pr.apt_code}</p>
                               </div>
                             </div>
                             <div className="flex gap-2">
-                              <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-black hover:bg-slate-50 transition-all">VIEW DOSAGE</button>
-                              <button className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all">DOWNLOAD PDF</button>
+                              <button 
+                                onClick={() => setSelectedPrescription(pr)}
+                                className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-black hover:bg-slate-50 transition-all"
+                              >
+                                VIEW DETAILS
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  // Mock PDF generation
+                                  window.print();
+                                }}
+                                className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all"
+                              >
+                                DOWNLOAD PDF
+                              </button>
                             </div>
                           </div>
                         ))}
