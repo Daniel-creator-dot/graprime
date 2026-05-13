@@ -444,6 +444,31 @@ app.patch('/api/appointments/:id', async (req, res) => {
   }
 });
 
+// Manual Meeting Link Generation (for Doctors)
+app.post('/api/appointments/:id/generate-link', authenticate, async (req: any, res) => {
+  const { id } = req.params;
+  if (req.user.role === 'patient') return res.status(403).json({ message: 'Forbidden' });
+
+  try {
+    const meetingLink = `https://meet.google.com/pbc-${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 5)}`;
+    
+    const result = await query(
+      'UPDATE appointments SET meeting_link = $1, payment_status = $2 WHERE id = $3 RETURNING *',
+      [meetingLink, 'paid', id]
+    );
+
+    const apt = result.rows[0];
+    if (apt) {
+      const msg = `CSA: Your Telemedicine session link for ${apt.appointment_id} is ready: ${meetingLink}. Please join at your scheduled time. Thank you.`;
+      await sendSMS(apt.phone_number, msg).catch(e => console.error('SMS Error in manual link gen:', e));
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 app.post('/api/appointments/:id/pay', authenticate, async (req: any, res) => {
   const { id } = req.params;
   try {

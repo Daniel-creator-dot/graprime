@@ -34,6 +34,7 @@ export const appointmentsApi = {
   update: (id: number, data: any) => client.patch(`/appointments/${id}`, data),
   updateStatus: (id: number, status: string) => client.patch(`/appointments/${id}/status`, { status }),
   initializePayment: (id: number) => client.post(`/appointments/${id}/pay`),
+  generateMeetingLink: (id: number) => client.post(`/appointments/${id}/generate-link`),
 };
 
 export const doctorsApi = {

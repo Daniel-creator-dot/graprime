@@ -407,9 +407,20 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                                         START SESSION
                                       </a>
                                     ) : (
-                                      <span className="px-3 py-1.5 bg-slate-100 text-slate-400 rounded-lg flex items-center gap-2 font-black text-[10px] uppercase tracking-wider italic">
-                                        LINK PENDING...
-                                      </span>
+                                      <button 
+                                        onClick={async () => {
+                                          try {
+                                            await appointmentsApi.generateMeetingLink(apt.id);
+                                            fetchAppointments();
+                                          } catch (err) {
+                                            console.error('Failed to generate link:', err);
+                                          }
+                                        }}
+                                        className="px-3 py-1.5 bg-green-600 text-white hover:bg-green-700 rounded-lg flex items-center gap-2 font-black text-[10px] uppercase tracking-wider shadow-lg shadow-green-100 transition-all"
+                                      >
+                                        <Plus className="w-4 h-4" />
+                                        GENERATE MEETING LINK
+                                      </button>
                                     )
                                   )}
                                   <button className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-lg">
