@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { XCircle, Heart, Thermometer, Activity, Weight, Ruler, Wind, FlaskConical, ScanLine, Pill, Clock, Save, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { XCircle, Heart, Thermometer, Activity, Weight, Ruler, Wind, FlaskConical, ScanLine, Pill, Clock, Save, CheckCircle2, AlertTriangle, Video } from 'lucide-react';
 import { consultationsApi, labsApi, scansApi, prescriptionsApi } from '../api/client';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -149,6 +149,17 @@ export default function ConsultationWorkspace({ appointment, user, onClose, onCo
                 {appointment.preferred_time} · {new Date(appointment.preferred_date).toLocaleDateString()}
               </p>
             </div>
+            {appointment.is_telemedicine && appointment.meeting_link && (
+              <a 
+                href={appointment.meeting_link}
+                target="_blank"
+                rel="noreferrer"
+                className="ml-4 px-4 py-2 bg-white text-indigo-600 rounded-xl font-black text-[10px] uppercase flex items-center gap-2 hover:bg-indigo-50 transition-all shadow-lg"
+              >
+                <Video className="w-4 h-4" />
+                JOIN VIDEO CALL
+              </a>
+            )}
             {consultation && (
               <span className={`ml-auto px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${consultation.status === 'completed' ? 'bg-green-400/20 text-green-100' : 'bg-yellow-400/20 text-yellow-100'}`}>
                 {consultation.status}

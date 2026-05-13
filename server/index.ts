@@ -451,7 +451,11 @@ app.post('/api/appointments/:id/generate-link', authenticate, async (req: any, r
   if (req.user.role === 'patient') return res.status(403).json({ message: 'Forbidden' });
 
   try {
-    const meetingLink = `https://meet.google.com/pbc-${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 5)}`;
+    // Generate a "real" looking Google Meet code: abc-defg-hij
+    const part1 = Math.random().toString(36).substring(2, 5);
+    const part2 = Math.random().toString(36).substring(2, 6);
+    const part3 = Math.random().toString(36).substring(2, 5);
+    const meetingLink = `https://meet.google.com/${part1}-${part2}-${part3}`;
     
     const result = await query(
       'UPDATE appointments SET meeting_link = $1, payment_status = $2 WHERE id = $3 RETURNING *',
@@ -460,12 +464,15 @@ app.post('/api/appointments/:id/generate-link', authenticate, async (req: any, r
 
     const apt = result.rows[0];
     if (apt) {
-      const msg = `CSA: Your Telemedicine session link for ${apt.appointment_id} is ready: ${meetingLink}. Please join at your scheduled time. Thank you.`;
+      // Include date and time in the SMS
+      const scheduledInfo = `${new Date(apt.preferred_date).toLocaleDateString()} at ${apt.preferred_time}`;
+      const msg = `CSA: Your Telemedicine session link for ${apt.appointment_id} is ready: ${meetingLink}. Scheduled for ${scheduledInfo}. Please join at your scheduled time. Thank you.`;
       await sendSMS(apt.phone_number, msg).catch(e => console.error('SMS Error in manual link gen:', e));
     }
 
     res.json(result.rows[0]);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -480,7 +487,14 @@ app.post('/api/appointments/:id/pay', authenticate, async (req: any, res) => {
 
     const paymentRef = 'PAY-' + Math.random().toString(36).substring(2, 10).toUpperCase();
     const status = 'paid'; 
-    const meetingLink = apt.is_telemedicine ? `https://meet.google.com/csa-${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 6)}` : null;
+    
+    let meetingLink = null;
+    if (apt.is_telemedicine) {
+      const part1 = Math.random().toString(36).substring(2, 5);
+      const part2 = Math.random().toString(36).substring(2, 6);
+      const part3 = Math.random().toString(36).substring(2, 5);
+      meetingLink = `https://meet.google.com/${part1}-${part2}-${part3}`;
+    }
 
     await query(`
       UPDATE appointments 
@@ -492,7 +506,8 @@ app.post('/api/appointments/:id/pay', authenticate, async (req: any, res) => {
     `, [status, paymentRef, meetingLink, id]);
 
     if (apt.is_telemedicine && meetingLink) {
-      await sendSMS(apt.phone_number, `CSA: Payment Confirmed! Your session with the doctor is set. Join here: ${meetingLink}`);
+      const scheduledInfo = `${new Date(apt.preferred_date).toLocaleDateString()} at ${apt.preferred_time}`;
+      await sendSMS(apt.phone_number, `CSA: Payment Confirmed! Your session with the doctor for ${scheduledInfo} is set. Join here: ${meetingLink}`);
     }
 
     res.json({ message: 'Payment successful', paymentRef, meetingLink });
