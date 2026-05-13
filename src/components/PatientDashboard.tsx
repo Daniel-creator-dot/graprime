@@ -14,7 +14,9 @@ import {
   ClipboardList,
   FileText,
   Activity,
-  Plus
+  Plus,
+  Menu,
+  X
 } from 'lucide-react';
 import { appointmentsApi } from '../api/client';
 import { motion, AnimatePresence } from 'motion/react';
@@ -27,6 +29,7 @@ type Tab = 'bookings' | 'calendar' | 'history' | 'profile' | 'new-booking';
 
 export default function PatientDashboard({ user, onLogout }: { user: any, onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState<Tab>('bookings');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusModal, setStatusModal] = useState<any>({ isOpen: false, type: 'success', title: '', message: '' });
@@ -78,9 +81,25 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
 
   return (
     <div className="flex h-screen bg-slate-50 text-slate-900 overflow-hidden font-sans">
+      {/* Sidebar Overlay for Mobile */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex">
-        <div className="p-6 border-b border-slate-100">
+      <aside className={`
+        fixed md:relative inset-y-0 left-0 w-72 bg-white border-r border-slate-200 flex flex-col z-[70] transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src={graaLogo} alt="Logo" className="w-8 h-8 object-contain" />
             <div>
@@ -88,32 +107,42 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
               <p className="text-[8px] text-slate-400 font-bold tracking-widest uppercase">Patient Portal</p>
             </div>
           </div>
+          <button onClick={() => setIsSidebarOpen(false)} className="md:hidden p-2 text-slate-400 hover:text-slate-900">
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <nav className="flex-1 p-4 space-y-2 mt-4">
           <button 
-            onClick={() => setActiveTab('bookings')}
+            onClick={() => { setActiveTab('bookings'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'bookings' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}
           >
             <Calendar className="w-5 h-5" />
             Appointments & History
           </button>
           <button 
-            onClick={() => setActiveTab('calendar')}
+            onClick={() => { setActiveTab('calendar'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'calendar' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}
           >
             <Clock className="w-5 h-5" />
             Calendar Schedule
           </button>
           <button 
-            onClick={() => setActiveTab('history')}
+            onClick={() => { setActiveTab('history'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'history' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}
           >
             <ClipboardList className="w-5 h-5" />
             Medical History
           </button>
           <button 
-            onClick={() => setActiveTab('profile')}
+            onClick={() => { setActiveTab('new-booking'); setIsSidebarOpen(false); }}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'new-booking' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}
+          >
+            <Plus className="w-5 h-5" />
+            Book New Session
+          </button>
+          <button 
+            onClick={() => { setActiveTab('profile'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'profile' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}
           >
             <User className="w-5 h-5" />
@@ -136,17 +165,22 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile Header */}
         <header className="md:hidden flex items-center justify-between p-4 bg-white border-b border-slate-200 sticky top-0 z-50">
-          <div className="flex items-center gap-2">
-            <img src={graaLogo} alt="Logo" className="w-6 h-6 object-contain" />
-            <span className="font-black text-xs tracking-tight">CSA HEALTH</span>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <div className="flex items-center gap-2">
+              <img src={graaLogo} alt="Logo" className="w-6 h-6 object-contain" />
+              <span className="font-black text-xs tracking-tight">CSA HEALTH</span>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-xs font-black border border-indigo-100">
               {user.name?.[0] || 'P'}
             </div>
-            <button onClick={onLogout} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-              <LogOut className="w-4 h-4" />
-            </button>
           </div>
         </header>
 
@@ -492,44 +526,6 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
         title={statusModal.title}
         message={statusModal.message}
       />
-
-      {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-4 flex items-center justify-between z-50 pb-[safe-area-inset-bottom]">
-        <button 
-          onClick={() => setActiveTab('bookings')}
-          className={`flex flex-col items-center gap-1 ${activeTab === 'bookings' ? 'text-indigo-600' : 'text-slate-400'}`}
-        >
-          <Calendar className="w-6 h-6" />
-          <span className="text-[10px] font-black uppercase tracking-tight">Home</span>
-        </button>
-        <button 
-          onClick={() => setActiveTab('calendar')}
-          className={`flex flex-col items-center gap-1 ${activeTab === 'calendar' ? 'text-indigo-600' : 'text-slate-400'}`}
-        >
-          <Clock className="w-6 h-6" />
-          <span className="text-[10px] font-black uppercase tracking-tight">Calendar</span>
-        </button>
-        <button 
-          onClick={() => setActiveTab('new-booking')}
-          className="bg-indigo-600 text-white p-4 rounded-2xl -mt-12 shadow-xl shadow-indigo-100 border-4 border-slate-50 active:scale-95 transition-all"
-        >
-          <Plus className="w-6 h-6" />
-        </button>
-        <button 
-          onClick={() => setActiveTab('history')}
-          className={`flex flex-col items-center gap-1 ${activeTab === 'history' ? 'text-indigo-600' : 'text-slate-400'}`}
-        >
-          <ClipboardList className="w-6 h-6" />
-          <span className="text-[10px] font-black uppercase tracking-tight">History</span>
-        </button>
-        <button 
-          onClick={() => setActiveTab('profile')}
-          className={`flex flex-col items-center gap-1 ${activeTab === 'profile' ? 'text-indigo-600' : 'text-slate-400'}`}
-        >
-          <User className="w-6 h-6" />
-          <span className="text-[10px] font-black uppercase tracking-tight">Profile</span>
-        </button>
-      </nav>
     </div>
   );
 }
