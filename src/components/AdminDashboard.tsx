@@ -395,16 +395,22 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                                       <CheckCircle2 className="w-4 h-4" />
                                     </button>
                                   )}
-                                  {apt.is_telemedicine && apt.meeting_link && (
-                                    <a 
-                                      href={apt.meeting_link}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg flex items-center gap-1 font-bold text-[10px] uppercase tracking-tighter"
-                                    >
-                                      <Video className="w-4 h-4" />
-                                      Join
-                                    </a>
+                                  {apt.is_telemedicine && (
+                                    apt.meeting_link ? (
+                                      <a 
+                                        href={apt.meeting_link}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg flex items-center gap-2 font-black text-[10px] uppercase tracking-wider shadow-lg shadow-indigo-100 transition-all"
+                                      >
+                                        <Video className="w-4 h-4" />
+                                        START SESSION
+                                      </a>
+                                    ) : (
+                                      <span className="px-3 py-1.5 bg-slate-100 text-slate-400 rounded-lg flex items-center gap-2 font-black text-[10px] uppercase tracking-wider italic">
+                                        LINK PENDING...
+                                      </span>
+                                    )
                                   )}
                                   <button className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-lg">
                                     <MoreVertical className="w-4 h-4" />
