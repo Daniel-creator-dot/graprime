@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Mail, Lock, User, Phone, UserPlus, ChevronLeft, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { authApi } from '../api/client';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import graLogo from '../gra.png';
 import graaLogo from '../graa.png';
 import StatusModal from './StatusModal';
 
 export default function Register({ onRegister, onBackToLogin }: { onRegister: (user: any) => void, onBackToLogin: () => void }) {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -59,6 +61,13 @@ export default function Register({ onRegister, onBackToLogin }: { onRegister: (u
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-[550px] bg-white rounded-[40px] shadow-2xl shadow-indigo-100/50 p-10 relative z-10 border border-white"
       >
+        <button 
+          onClick={() => navigate('/')}
+          className="absolute left-8 top-8 p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all flex items-center gap-2 text-[10px] font-black"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          HOME
+        </button>
         <div className="flex flex-col items-center mb-8">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-white rounded-[20px] flex items-center justify-center shadow-lg shadow-indigo-100 overflow-hidden p-2">

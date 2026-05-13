@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Lock, LogIn, ShieldCheck, KeyRound, ChevronLeft, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { authApi } from '../api/client';
 import { motion, AnimatePresence } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import graLogo from '../gra.png';
 import graaLogo from '../graa.png';
 import StatusModal from './StatusModal';
@@ -9,6 +10,7 @@ import StatusModal from './StatusModal';
 type LoginMode = 'login' | 'forgot' | 'reset';
 
 export default function Login({ onLogin }: { onLogin: (user: any) => void }) {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<LoginMode>('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -97,6 +99,13 @@ export default function Login({ onLogin }: { onLogin: (user: any) => void }) {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-[480px] bg-white rounded-[40px] shadow-2xl shadow-indigo-100/50 p-12 relative z-10 border border-white"
       >
+        <button 
+          onClick={() => navigate('/')}
+          className="absolute left-8 top-8 p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all flex items-center gap-2 text-xs font-bold"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          HOME
+        </button>
         <div className="flex flex-col items-center mb-12">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-20 h-20 bg-white rounded-[24px] flex items-center justify-center shadow-xl shadow-indigo-100 overflow-hidden p-2">
