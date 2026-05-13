@@ -298,31 +298,67 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                     </div>
                     <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-2xl border border-slate-100">
                       <span className={`text-xs font-bold uppercase tracking-wider px-3 ${doctors.find(d => d.user_id == user.id)?.is_active ? 'text-green-600' : 'text-slate-400'}`}>
-                        {doctors.find(d => d.user_id == user.id)?.is_active ? 'Active' : 'Inactive'}
+                        {doctors.find(d => d.user_id == user.id)?.is_active ? 'Online' : 'Offline'}
                       </span>
                       <button 
                         onClick={async () => {
-                          console.log('Toggle clicked. User ID:', user?.id);
-                          const doc = doctors.find(d => d.user_id == user.id);
-                          console.log('Found doctor profile:', doc);
+                          const doc = doctors.find(d => d.user_id === user.id);
                           if (doc) {
-                            try {
-                              console.log('Sending update for doctor ID:', doc.id);
-                              await doctorsApi.updateStatus(doc.id, !doc.is_active);
-                              console.log('Update success, refreshing data...');
-                              await fetchData();
-                            } catch (e) {
-                              console.error('Update failed:', e);
-                            }
-                          } else {
-                            console.warn('No doctor profile found for user ID:', user.id);
-                            console.log('Available doctors:', doctors);
+                            await doctorsApi.updateStatus(doc.id, !doc.is_active);
+                            fetchData();
                           }
                         }}
-                        className={`w-14 h-7 rounded-full transition-all relative ${doctors.find(d => d.user_id == user.id)?.is_active ? 'bg-indigo-600 shadow-lg shadow-indigo-200' : 'bg-slate-300'}`}
+                        className={`w-12 h-6 rounded-full transition-colors relative ${doctors.find(d => d.user_id === user.id)?.is_active ? 'bg-green-600' : 'bg-slate-300'}`}
                       >
-                        <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform ${doctors.find(d => d.user_id == user.id)?.is_active ? 'left-8' : 'left-1'}`} />
+                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${doctors.find(d => d.user_id === user.id)?.is_active ? 'left-7' : 'left-1'}`} />
                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {user?.role === 'doctor' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm relative overflow-hidden group">
+                      <div className="relative z-10">
+                        <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                          <Video className="w-7 h-7" />
+                        </div>
+                        <h3 className="text-2xl font-black text-slate-900 mb-2">Telemedicine Hub</h3>
+                        <p className="text-slate-500 font-medium text-sm mb-8">Manage your virtual consultations and generate instant meeting links for patients.</p>
+                        <div className="flex flex-wrap gap-4">
+                          <button 
+                            onClick={() => setActiveTab('appointments')}
+                            className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all"
+                          >
+                            View All Online Sessions
+                          </button>
+                        </div>
+                      </div>
+                      <div className="absolute -right-8 -bottom-8 text-indigo-50/30 group-hover:text-indigo-50/50 transition-colors">
+                        <Video className="w-48 h-48" />
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm relative overflow-hidden group">
+                      <div className="relative z-10">
+                        <div className="w-14 h-14 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                          <Plus className="w-7 h-7" />
+                        </div>
+                        <h3 className="text-2xl font-black text-slate-900 mb-2">Instant Meeting</h3>
+                        <p className="text-slate-500 font-medium text-sm mb-8">Create a quick Google Meet link to share with a patient immediately.</p>
+                        <button 
+                          onClick={() => {
+                            const link = `https://meet.google.com/pbc-${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 5)}`;
+                            window.open(link, '_blank');
+                          }}
+                          className="px-6 py-3 bg-green-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-green-100 hover:bg-green-700 active:scale-95 transition-all"
+                        >
+                          Launch Quick Meeting
+                        </button>
+                      </div>
+                      <div className="absolute -right-8 -bottom-8 text-green-50/30 group-hover:text-green-50/50 transition-colors">
+                        <Plus className="w-48 h-48" />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -709,9 +745,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Patient</th>
                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Appointment Time</th>
                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Current Status</th>
-                        {user?.role !== 'doctor' && (
-                          <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Next Action</th>
-                        )}
+                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Next Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -736,27 +770,54 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                               {apt.status}
                             </span>
                           </td>
-                          {user?.role !== 'doctor' && (
-                            <td className="px-6 py-4">
-                              <div className="flex gap-2">
-                                {apt.status === 'approved' && (user?.role === 'admin' || user?.role === 'front_desk') && (
-                                  <button onClick={() => updateStatus(apt.id, 'arrived')} className="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg shadow-sm">
-                                    Mark Arrived
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              {apt.is_telemedicine && (
+                                apt.meeting_link ? (
+                                  <a 
+                                    href={apt.meeting_link}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg flex items-center gap-2 font-black text-[10px] uppercase tracking-wider shadow-lg shadow-indigo-100 transition-all"
+                                  >
+                                    <Video className="w-4 h-4" />
+                                    START SESSION
+                                  </a>
+                                ) : (
+                                  <button 
+                                    onClick={async () => {
+                                      try {
+                                        await appointmentsApi.generateMeetingLink(apt.id);
+                                        fetchData();
+                                      } catch (err) {
+                                        console.error('Failed to generate link:', err);
+                                      }
+                                    }}
+                                    className="px-3 py-1.5 bg-green-600 text-white hover:bg-green-700 rounded-lg flex items-center gap-2 font-black text-[10px] uppercase tracking-wider shadow-lg shadow-green-100 transition-all"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                    GENERATE LINK
                                   </button>
-                                )}
-                                {apt.status === 'arrived' && (
-                                  <button onClick={() => updateStatus(apt.id, 'consulting')} className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm">
-                                    In Consultation
-                                  </button>
-                                )}
-                                {apt.status === 'consulting' && (
-                                  <button onClick={() => updateStatus(apt.id, 'completed')} className="px-3 py-1.5 bg-green-600 text-white text-xs font-bold rounded-lg shadow-sm">
-                                    Complete
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          )}
+                                )
+                              )}
+                              
+                              {apt.status === 'approved' && (user?.role === 'admin' || user?.role === 'front_desk') && (
+                                <button onClick={() => updateStatus(apt.id, 'arrived')} className="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg shadow-sm">
+                                  Mark Arrived
+                                </button>
+                              )}
+                              {apt.status === 'arrived' && (user?.role === 'admin' || user?.role === 'doctor') && (
+                                <button onClick={() => updateStatus(apt.id, 'consulting')} className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm">
+                                  In Consultation
+                                </button>
+                              )}
+                              {apt.status === 'consulting' && (user?.role === 'admin' || user?.role === 'doctor') && (
+                                <button onClick={() => updateStatus(apt.id, 'completed')} className="px-3 py-1.5 bg-green-600 text-white text-xs font-bold rounded-lg shadow-sm">
+                                  Complete
+                                </button>
+                              )}
+                            </div>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
