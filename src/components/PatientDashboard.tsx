@@ -347,7 +347,15 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
               </div>
               <h3 className="text-2xl font-black">Preparing for your Telemedicine Session</h3>
               <p className="text-indigo-100 font-medium max-w-xl">Ensure you have a stable internet connection, a quiet environment, and any relevant medical records ready for your consultation.</p>
-              <button className="px-6 py-3 bg-white text-indigo-600 rounded-xl font-black text-xs hover:bg-indigo-50 transition-colors flex items-center gap-2">
+              <button 
+                onClick={() => setStatusModal({
+                  isOpen: true,
+                  type: 'info',
+                  title: 'Telemedicine Guidelines',
+                  message: '1. Ensure a stable internet connection.\n2. Use a private, quiet, and well-lit room.\n3. Test your camera and microphone beforehand.\n4. Have your Nationwide card and ID ready.\n5. Log in 5 minutes before your scheduled time.'
+                })}
+                className="px-6 py-3 bg-white text-indigo-600 rounded-xl font-black text-xs hover:bg-indigo-50 transition-colors flex items-center gap-2"
+              >
                 VIEW GUIDELINES
                 <ExternalLink className="w-4 h-4" />
               </button>

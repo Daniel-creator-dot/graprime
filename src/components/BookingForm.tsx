@@ -63,7 +63,7 @@ export default function BookingForm() {
       setDoctors(res.data);
     });
 
-    // Auto-fill if user is logged in
+    // Auto-fill and skip choice if user is logged in
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       const user = JSON.parse(savedUser);
@@ -74,6 +74,7 @@ export default function BookingForm() {
         email: user.email || prev.email,
         createdBy: user.name || prev.createdBy
       }));
+      setStep('basic');
     }
   }, []);
 
