@@ -17,7 +17,8 @@ import {
   LogOut,
   ChevronRight,
   Pencil,
-  ShieldCheck
+  ShieldCheck,
+  Video
 } from 'lucide-react';
 import { appointmentsApi, analyticsApi, doctorsApi, notificationsApi, usersApi, settingsApi } from '../api/client';
 import { motion, AnimatePresence } from 'motion/react';
@@ -385,14 +386,24 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                                 </span>
                               </td>
                               <td className="px-6 py-4">
-                                <div className="flex items-center gap-2">
-                                  {apt.status === 'pending' && (
+                                  {apt.status === 'approved' && (
                                     <button 
                                       onClick={() => updateStatus(apt.id, 'approved')}
                                       className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg"
                                     >
                                       <CheckCircle2 className="w-4 h-4" />
                                     </button>
+                                  )}
+                                  {apt.is_telemedicine && apt.meeting_link && (
+                                    <a 
+                                      href={apt.meeting_link}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg flex items-center gap-1 font-bold text-[10px] uppercase tracking-tighter"
+                                    >
+                                      <Video className="w-4 h-4" />
+                                      Join
+                                    </a>
                                   )}
                                   <button className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-lg">
                                     <MoreVertical className="w-4 h-4" />

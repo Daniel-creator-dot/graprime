@@ -1,5 +1,6 @@
 import { useState, useMemo, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
   Clock, 
@@ -45,10 +46,12 @@ const INITIAL_DATA: AppointmentData = {
   appointmentId: '',
   bookingDate: '',
   createdBy: 'System User',
+  isTelemedicine: false,
 };
 
 export default function BookingForm() {
-  const [step, setStep] = useState<FormStep>('basic');
+  const navigate = useNavigate();
+  const [step, setStep] = useState<FormStep>('choice');
   const [formData, setFormData] = useState<AppointmentData>(INITIAL_DATA);
   const [errors, setErrors] = useState<Partial<Record<keyof AppointmentData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,6 +62,19 @@ export default function BookingForm() {
     doctorsApi.getAll().then(res => {
       setDoctors(res.data);
     });
+
+    // Auto-fill if user is logged in
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      const user = JSON.parse(savedUser);
+      setFormData(prev => ({
+        ...prev,
+        fullName: user.name || prev.fullName,
+        phoneNumber: user.phone_number || prev.phoneNumber,
+        email: user.email || prev.email,
+        createdBy: user.name || prev.createdBy
+      }));
+    }
   }, []);
 
   const validateStep = (currentStep: FormStep) => {
@@ -149,7 +165,7 @@ export default function BookingForm() {
           <p className="mt-1 text-slate-400 text-sm">Pre-Booking Appointment System</p>
         </header>
 
-        {step !== 'success' && (
+        {step !== 'success' && step !== 'choice' && (
           <div className="mb-8">
             <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
               <motion.div 
@@ -164,6 +180,57 @@ export default function BookingForm() {
 
         <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
           <AnimatePresence mode="wait">
+            {step === 'choice' && (
+              <motion.div
+                key="choice"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="p-8 space-y-8"
+              >
+                <div className="text-center space-y-2">
+                  <h2 className="text-2xl font-black text-slate-900">How would you like to book?</h2>
+                  <p className="text-slate-500 font-medium text-sm">Choose the method that works best for you.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <button 
+                    onClick={() => setStep('basic')}
+                    className="p-8 bg-slate-50 border border-slate-200 rounded-[32px] text-left hover:border-indigo-600 hover:bg-white transition-all group relative overflow-hidden"
+                  >
+                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                      <User className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Guest Booking</h3>
+                    <p className="text-sm text-slate-400 font-medium">Quick and simple. No account required. Ideal for one-time visits.</p>
+                    <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+                      <User className="w-24 h-24" />
+                    </div>
+                  </button>
+
+                  <button 
+                    onClick={() => navigate('/register')}
+                    className="p-8 bg-indigo-600 text-white border border-indigo-700 rounded-[32px] text-left hover:bg-indigo-700 transition-all group relative overflow-hidden shadow-xl shadow-indigo-100"
+                  >
+                    <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md mb-6">
+                      <ShieldCheck className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Patient Account</h3>
+                    <p className="text-indigo-100/70 text-sm font-medium">Track your history, manage telemedicine sessions, and save your details for next time.</p>
+                    <div className="absolute -right-4 -bottom-4 opacity-10">
+                      <ShieldCheck className="w-24 h-24" />
+                    </div>
+                  </button>
+                </div>
+
+                <div className="pt-6 border-t border-slate-100 text-center">
+                  <p className="text-sm text-slate-400 font-medium">
+                    Already have an account? 
+                    <button onClick={() => navigate('/login')} className="ml-1 text-indigo-600 font-bold hover:underline">Sign In</button>
+                  </p>
+                </div>
+              </motion.div>
+            )}
             {step === 'basic' && (
               <motion.div
                 key="basic"
@@ -172,6 +239,24 @@ export default function BookingForm() {
                 exit={{ opacity: 0, x: -20 }}
                 className="p-4 sm:p-8"
               >
+                <div className="mb-8 flex p-1 bg-slate-100 rounded-2xl border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => updateField('isTelemedicine', false)}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all ${!formData.isTelemedicine ? 'bg-white text-indigo-600 shadow-sm shadow-indigo-100' : 'text-slate-500 hover:text-slate-700'}`}
+                  >
+                    <User className="w-4 h-4" />
+                    In-Person Visit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateField('isTelemedicine', true)}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all ${formData.isTelemedicine ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-500 hover:text-slate-700'}`}
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    Telemedicine (Online)
+                  </button>
+                </div>
                 <div className="flex items-center gap-3 mb-6">
                   <User className="w-5 h-5 text-indigo-600" />
                   <h2 className="text-xl font-bold">Basic Information</h2>
@@ -432,6 +517,10 @@ export default function BookingForm() {
                         <p className="font-bold">{formData.preferredDate} at {formData.preferredTime}</p>
                       </div>
                       <div>
+                        <p className="text-slate-400 font-medium">Consultation Mode</p>
+                        <p className="font-bold text-indigo-600">{formData.isTelemedicine ? 'Online (Telemedicine)' : 'In-Person (Physical)'}</p>
+                      </div>
+                      <div>
                         <p className="text-slate-400 font-medium">To See</p>
                         <p className="font-bold">{formData.staffToSee || 'Not specified'}</p>
                       </div>
@@ -507,7 +596,7 @@ export default function BookingForm() {
             )}
           </AnimatePresence>
 
-          {step !== 'success' && (
+          {step !== 'success' && step !== 'choice' && (
             <div className="p-4 sm:p-8 bg-slate-50 border-t border-slate-200 flex justify-between gap-4">
               <button
                 onClick={prevStep}

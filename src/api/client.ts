@@ -20,6 +20,7 @@ client.interceptors.request.use((config) => {
 
 export const authApi = {
   login: (data: any) => client.post('/auth/login', data),
+  register: (data: any) => client.post('/auth/register', data),
   forgotPassword: (username: string) => client.post('/auth/forgot-password', { username }),
   resetPassword: (data: any) => client.post('/auth/reset-password', data),
 };
@@ -28,9 +29,11 @@ export default client;
 
 export const appointmentsApi = {
   getAll: () => client.get('/appointments'),
+  getMyAppointments: () => client.get('/appointments/my'),
   create: (data: any) => client.post('/appointments', data),
   update: (id: number, data: any) => client.patch(`/appointments/${id}`, data),
   updateStatus: (id: number, status: string) => client.patch(`/appointments/${id}/status`, { status }),
+  initializePayment: (id: number) => client.post(`/appointments/${id}/pay`),
 };
 
 export const doctorsApi = {

@@ -37,6 +37,7 @@ export interface AppointmentData {
   appointmentId: string;
   bookingDate: string;
   createdBy: string;
+  isTelemedicine: boolean;
 }
 
-export type FormStep = 'basic' | 'details' | 'additional' | 'confirm' | 'success';
+export type FormStep = 'choice' | 'basic' | 'details' | 'additional' | 'confirm' | 'success';

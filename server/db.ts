@@ -99,6 +99,10 @@ export const initDb = async () => {
         notes TEXT,
         internal_notes TEXT,
         queue_number INTEGER,
+        is_telemedicine BOOLEAN DEFAULT FALSE,
+        payment_status VARCHAR(20) DEFAULT 'unpaid',
+        payment_ref VARCHAR(100),
+        meeting_link TEXT,
         completed_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -127,6 +131,18 @@ export const initDb = async () => {
         END IF;
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='service') THEN
           ALTER TABLE appointments ADD COLUMN service VARCHAR(100);
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='is_telemedicine') THEN
+          ALTER TABLE appointments ADD COLUMN is_telemedicine BOOLEAN DEFAULT FALSE;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='payment_status') THEN
+          ALTER TABLE appointments ADD COLUMN payment_status VARCHAR(20) DEFAULT 'unpaid';
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='payment_ref') THEN
+          ALTER TABLE appointments ADD COLUMN payment_ref VARCHAR(100);
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='meeting_link') THEN
+          ALTER TABLE appointments ADD COLUMN meeting_link TEXT;
         END IF;
       END $$;
     `);
@@ -183,6 +199,20 @@ export const initDb = async () => {
         username VARCHAR(50) NOT NULL,
         code VARCHAR(6) NOT NULL,
         expires_at TIMESTAMP NOT NULL
+      );
+    `);
+
+    // Create Payments table
+    await query(`
+      CREATE TABLE IF NOT EXISTS payments (
+        id SERIAL PRIMARY KEY,
+        appointment_id INTEGER REFERENCES appointments(id),
+        amount DECIMAL(10, 2) NOT NULL,
+        currency VARCHAR(10) DEFAULT 'GHS',
+        status VARCHAR(20) DEFAULT 'pending',
+        reference VARCHAR(100) UNIQUE,
+        gateway VARCHAR(50),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 

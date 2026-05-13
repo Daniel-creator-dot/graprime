@@ -14,6 +14,21 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// --- Middleware ---
+const authenticate = (req: any, res: any, next: any) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ message: 'No token provided' });
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    res.status(401).json({ message: 'Invalid token' });
+  }
+};
+
 // Initialize Database
 initDb();
 
@@ -36,6 +51,46 @@ app.post('/api/auth/login', async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.post('/api/auth/register', async (req, res) => {
+  const { username, password, name, phone_number, email } = req.body;
+  try {
+    // Check if user exists
+    const checkUser = await query('SELECT * FROM users WHERE username = $1', [username]);
+    if (checkUser.rows.length > 0) {
+      return res.status(400).json({ message: 'Username already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create User
+    const userResult = await query(
+      'INSERT INTO users (username, password, role, name, phone_number) VALUES ($1, $2, $3, $4, $5) RETURNING id, username, role',
+      [username, hashedPassword, 'patient', name, phone_number]
+    );
+    const user = userResult.rows[0];
+
+    // Create Patient Profile
+    await query(
+      'INSERT INTO patients (full_name, email, phone_number) VALUES ($1, $2, $3)',
+      [name, email, phone_number]
+    );
+
+    const token = jwt.sign(
+      { id: user.id, username: user.username, role: user.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: '24h' }
+    );
+
+    res.status(201).json({ 
+      token, 
+      user: { id: user.id, username: user.username, role: user.role, name } 
+    });
+  } catch (err) {
+    console.error('Registration error:', err);
+    res.status(500).json({ message: 'Server error during registration' });
   }
 });
 
@@ -256,6 +311,25 @@ app.get('/api/appointments', async (req, res) => {
   }
 });
 
+app.get('/api/appointments/my', authenticate, async (req: any, res) => {
+  try {
+    // Get patient_id from user table or by matching phone number
+    const userResult = await query('SELECT phone_number FROM users WHERE id = $1', [req.user.id]);
+    const phone = userResult.rows[0].phone_number;
+
+    const result = await query(`
+      SELECT a.*, d.name as doctor_name 
+      FROM appointments a 
+      LEFT JOIN doctors d ON a.doctor_id = d.id 
+      WHERE a.phone_number = $1
+      ORDER BY a.preferred_date DESC, a.preferred_time DESC
+    `, [phone]);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 app.post('/api/appointments', async (req, res) => {
   const { 
     fullName, whoIsComing, phoneNumber, email, staffId, nationwideId, department, 
@@ -367,6 +441,38 @@ app.patch('/api/appointments/:id', async (req, res) => {
   } catch (err) {
     console.error('Error in edit appointment:', err);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.post('/api/appointments/:id/pay', authenticate, async (req: any, res) => {
+  const { id } = req.params;
+  try {
+    const aptResult = await query('SELECT * FROM appointments WHERE id = $1', [id]);
+    const apt = aptResult.rows[0];
+
+    if (!apt) return res.status(404).json({ message: 'Appointment not found' });
+
+    const paymentRef = 'PAY-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+    const status = 'paid'; 
+    const meetingLink = apt.is_telemedicine ? `https://meet.google.com/csa-${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 6)}` : null;
+
+    await query(`
+      UPDATE appointments 
+      SET payment_status = $1, 
+          payment_ref = $2, 
+          meeting_link = $3,
+          status = 'approved'
+      WHERE id = $4
+    `, [status, paymentRef, meetingLink, id]);
+
+    if (apt.is_telemedicine && meetingLink) {
+      await sendSMS(apt.phone_number, `CSA: Payment Confirmed! Your session with the doctor is set. Join here: ${meetingLink}`);
+    }
+
+    res.json({ message: 'Payment successful', paymentRef, meetingLink });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Payment processing failed' });
   }
 });
 
