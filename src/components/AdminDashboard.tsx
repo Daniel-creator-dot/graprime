@@ -1122,7 +1122,8 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
     priority: '',
     status: '',
     who_is_coming: '',
-    service: ''
+    service: '',
+    is_telemedicine: false
   });
   const [loading, setLoading] = useState(false);
 
@@ -1136,7 +1137,8 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
         priority: appointment.priority,
         status: appointment.status,
         who_is_coming: Array.isArray(appointment.who_is_coming) ? appointment.who_is_coming.join(', ') : (appointment.who_is_coming || ''),
-        service: appointment.service || ''
+        service: appointment.service || '',
+        is_telemedicine: !!appointment.is_telemedicine
       });
     }
   }, [appointment]);
@@ -1271,6 +1273,20 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
                   <option value="missed">Missed</option>
                 </select>
               </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
+              <div>
+                <p className="font-bold text-sm">Telemedicine Session</p>
+                <p className="text-[10px] text-slate-500 font-medium">Enable for online video consultations</p>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setFormData({...formData, is_telemedicine: !formData.is_telemedicine})}
+                className={`w-12 h-6 rounded-full transition-colors relative ${formData.is_telemedicine ? 'bg-indigo-600' : 'bg-slate-300'}`}
+              >
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${formData.is_telemedicine ? 'left-7' : 'left-1'}`} />
+              </button>
             </div>
 
             <div>
