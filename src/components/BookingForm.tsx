@@ -17,7 +17,8 @@ import {
   Hash,
   UserCheck,
   Plus,
-  Trash2
+  Trash2,
+  Video
 } from 'lucide-react';
 import graLogo from '../gra.png';
 import graaLogo from '../graa.png';
