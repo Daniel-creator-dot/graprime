@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import BookingForm from './components/BookingForm';
 import AdminDashboard from './components/AdminDashboard';
 import Login from './components/Login';
@@ -6,9 +7,9 @@ import Register from './components/Register';
 import PatientDashboard from './components/PatientDashboard';
 
 export default function App() {
-  const [isAdmin, setIsAdmin] = useState(window.location.pathname.startsWith('/admin'));
+  const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<any>(null);
-  const [view, setView] = useState<'booking' | 'login' | 'register'>('booking');
   const [isCleanMode, setIsCleanMode] = useState(false);
 
   useEffect(() => {
@@ -21,45 +22,53 @@ export default function App() {
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
-    
-    if (window.location.pathname === '/login') setView('login');
-    if (window.location.pathname === '/register') setView('register');
   }, []);
 
   const handleLogout = () => {
     localStorage.clear();
     setUser(null);
-    setView('booking');
+    navigate('/');
   };
 
-  if (!user) {
-    if (view === 'login') return <Login onLogin={setUser} />;
-    if (view === 'register') return <Register onRegister={setUser} onBackToLogin={() => setView('login')} />;
-  }
+  const handleLogin = (userData: any) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+    navigate('/');
+  };
 
   return (
     <div className={`min-h-screen ${isCleanMode ? 'bg-white' : 'bg-slate-50'}`}>
-      {user ? (
-        user.role === 'patient' ? (
-          <PatientDashboard user={user} onLogout={handleLogout} />
-        ) : (
-          <AdminDashboard user={user} onLogout={handleLogout} />
-        )
-      ) : (
-        <div className="relative">
-          {!isCleanMode && (
-            <div className="absolute top-4 right-4 z-50">
-              <button 
-                onClick={() => setView('login')}
-                className="px-6 py-2 bg-indigo-600 text-white rounded-full font-bold shadow-lg hover:bg-indigo-700 transition-all"
-              >
-                Login / Register
-              </button>
+      <Routes>
+        <Route path="/login" element={
+          user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />
+        } />
+        <Route path="/register" element={
+          user ? <Navigate to="/" /> : <Register onRegister={handleLogin} onBackToLogin={() => navigate('/login')} />
+        } />
+        <Route path="/" element={
+          user ? (
+            user.role === 'patient' ? (
+              <PatientDashboard user={user} onLogout={handleLogout} />
+            ) : (
+              <AdminDashboard user={user} onLogout={handleLogout} />
+            )
+          ) : (
+            <div className="relative">
+              {!isCleanMode && (
+                <div className="absolute top-4 right-4 z-50">
+                  <button 
+                    onClick={() => navigate('/login')}
+                    className="px-6 py-2 bg-indigo-600 text-white rounded-full font-bold shadow-lg hover:bg-indigo-700 transition-all"
+                  >
+                    Login / Register
+                  </button>
+                </div>
+              )}
+              <BookingForm />
             </div>
-          )}
-          <BookingForm />
-        </div>
-      )}
+          )
+        } />
+      </Routes>
     </div>
   );
 }
