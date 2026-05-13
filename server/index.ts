@@ -1039,7 +1039,7 @@ app.get('/api/analytics/dashboard', authenticate, async (req: any, res) => {
         to_char(preferred_date, 'Dy') as day,
         COUNT(*) as count
       FROM appointments
-      WHERE preferred_date > CURRENT_DATE - INTERVAL '7 days'${doctorFilter}
+      WHERE preferred_date > CURRENT_DATE - INTERVAL '7 days'${doctorId ? ' AND doctor_id = $1' : ''}
       GROUP BY preferred_date
       ORDER BY preferred_date
     `, doctorId ? [doctorId] : []);
@@ -1093,7 +1093,7 @@ app.get('/api/analytics/dashboard', authenticate, async (req: any, res) => {
         SELECT 
           EXTRACT(EPOCH FROM (completed_at - (preferred_date + preferred_time))) / 60 as wait_mins
         FROM appointments
-        WHERE status = 'completed' AND completed_at IS NOT NULL${doctorFilter}
+        WHERE status = 'completed' AND completed_at IS NOT NULL${doctorId ? ' AND doctor_id = $1' : ''}
       ) as sub
     `, doctorId ? [doctorId] : []);
 
