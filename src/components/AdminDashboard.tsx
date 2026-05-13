@@ -374,6 +374,7 @@ return (
                       </div>
                     </div>
                   </div>
+                </div>
                 )}
 
                   {/* Stats Grid */}
