@@ -92,21 +92,21 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'bookings' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}
           >
             <Calendar className="w-5 h-5" />
-            My Bookings
+            Appointments & History
           </button>
           <button 
             onClick={() => setActiveTab('calendar')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'calendar' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:bg-slate-50'}`}
           >
             <Clock className="w-5 h-5" />
-            Schedule View
+            Calendar Schedule
           </button>
           <button 
             onClick={() => setActiveTab('new-booking')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'new-booking' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:bg-slate-50'}`}
           >
             <CheckCircle2 className="w-5 h-5" />
-            Book Session
+            Book New Session
           </button>
           <button 
             onClick={() => setActiveTab('profile')}
@@ -152,6 +152,38 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
               </div>
             </div>
           </header>
+
+          {appointments.some(a => a.is_telemedicine && a.status === 'approved') && (
+            <section className="bg-indigo-600 rounded-[32px] p-8 text-white shadow-2xl shadow-indigo-200 relative overflow-hidden">
+              <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="space-y-2 text-center md:text-left">
+                  <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/20">Active / Upcoming Session</span>
+                  <h3 className="text-2xl font-black">Your Telemedicine Meeting is Ready</h3>
+                  <p className="text-indigo-100 font-medium">Join your virtual consultation now to speak with your doctor.</p>
+                </div>
+                {appointments.find(a => a.is_telemedicine && a.status === 'approved')?.payment_status === 'paid' ? (
+                  <a 
+                    href={appointments.find(a => a.is_telemedicine && a.status === 'approved')?.meeting_link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-8 py-4 bg-white text-indigo-600 rounded-2xl font-black text-sm hover:bg-indigo-50 transition-all flex items-center gap-3 shadow-xl"
+                  >
+                    JOIN GOOGLE MEET
+                    <Video className="w-5 h-5" />
+                  </a>
+                ) : (
+                  <button 
+                    onClick={() => handlePayment(appointments.find(a => a.is_telemedicine && a.status === 'approved')?.id)}
+                    className="px-8 py-4 bg-green-400 text-slate-900 rounded-2xl font-black text-sm hover:bg-green-300 transition-all flex items-center gap-3 shadow-xl"
+                  >
+                    PAY & JOIN SESSION
+                    <CreditCard className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+              <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+            </section>
+          )}
 
           <AnimatePresence mode="wait">
             {activeTab === 'bookings' && (
