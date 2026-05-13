@@ -13,7 +13,8 @@ import {
   ShieldCheck,
   ClipboardList,
   FileText,
-  Activity
+  Activity,
+  Plus
 } from 'lucide-react';
 import { appointmentsApi } from '../api/client';
 import { motion, AnimatePresence } from 'motion/react';
