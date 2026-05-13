@@ -1749,29 +1749,45 @@ function WorkloadItem({ name, count, percentage, color }: any) {
 }
 
 function PrescriptionModal({ isOpen, onClose, appointment, onSuccess }: any) {
-  const [formData, setFormData] = useState({
-    medication_name: '',
-    dosage: '',
-    frequency: '',
-    duration: '',
-    instructions: ''
-  });
+  const [medications, setMedications] = useState([
+    { medication_name: '', dosage: '', frequency: '', duration: '', instructions: '' }
+  ]);
   const [loading, setLoading] = useState(false);
 
   if (!isOpen || !appointment) return null;
+
+  const addMedication = () => {
+    setMedications([...medications, { medication_name: '', dosage: '', frequency: '', duration: '', instructions: '' }]);
+  };
+
+  const removeMedication = (index: number) => {
+    if (medications.length > 1) {
+      setMedications(medications.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateMedication = (index: number, field: string, value: string) => {
+    const updated = [...medications];
+    (updated[index] as any)[field] = value;
+    setMedications(updated);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await prescriptionsApi.create({
-        appointment_id: appointment.id,
-        patient_id: appointment.patient_id,
-        ...formData
-      });
+      // We'll save each medication as a separate entry or as a batch if the API supports it.
+      // Current API seems to expect one medication per call based on the spread.
+      for (const med of medications) {
+        await prescriptionsApi.create({
+          appointment_id: appointment.id,
+          patient_id: appointment.patient_id,
+          ...med
+        });
+      }
       onSuccess();
       onClose();
-      setFormData({ medication_name: '', dosage: '', frequency: '', duration: '', instructions: '' });
+      setMedications([{ medication_name: '', dosage: '', frequency: '', duration: '', instructions: '' }]);
     } catch (err) {
       console.error(err);
     } finally {
@@ -1781,67 +1797,116 @@ function PrescriptionModal({ isOpen, onClose, appointment, onSuccess }: any) {
 
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[110] flex items-center justify-center p-6">
-      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden">
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-black">Issue Prescription</h2>
-            <button type="button" onClick={onClose} className="p-2 hover:bg-slate-100 rounded-xl"><XCircle className="w-5 h-5 text-slate-400" /></button>
-          </div>
-
-          <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center gap-4">
-            <div className="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-bold text-xs">
+      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-20">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center font-bold text-lg shadow-lg shadow-indigo-100">
               {appointment.full_name[0]}
             </div>
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Patient</p>
-              <p className="font-bold text-sm text-slate-900">{appointment.full_name}</p>
+              <h2 className="text-xl font-black">Issue Prescription</h2>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{appointment.full_name}</p>
             </div>
           </div>
+          <button type="button" onClick={onClose} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
+            <XCircle className="w-6 h-6 text-slate-400" />
+          </button>
+        </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Medication Name</label>
-              <input
-                required
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-medium"
-                value={formData.medication_name}
-                onChange={e => setFormData({ ...formData, medication_name: e.target.value })}
-                placeholder="e.g. Paracetamol"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Dosage</label>
-                <input required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl" value={formData.dosage} onChange={e => setFormData({ ...formData, dosage: e.target.value })} placeholder="e.g. 500mg" />
-              </div>
-              <div>
-                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Frequency</label>
-                <input required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl" value={formData.frequency} onChange={e => setFormData({ ...formData, frequency: e.target.value })} placeholder="e.g. 2x Daily" />
-              </div>
-            </div>
-            <div>
-              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Duration</label>
-              <input required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl" value={formData.duration} onChange={e => setFormData({ ...formData, duration: e.target.value })} placeholder="e.g. 5 Days" />
-            </div>
-            <div>
-              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Special Instructions</label>
-              <textarea
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl h-24 resize-none"
-                value={formData.instructions}
-                onChange={e => setFormData({ ...formData, instructions: e.target.value })}
-                placeholder="e.g. Take after meals"
-              />
-            </div>
-          </div>
+        <div className="flex-1 overflow-y-auto p-8 pt-4">
+          <form id="prescription-form" onSubmit={handleSubmit} className="space-y-12">
+            {medications.map((med, index) => (
+              <div key={index} className="relative group animate-in fade-in slide-in-from-top-4 duration-300">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-black text-xs">0{index + 1}</span>
+                    <h3 className="font-bold text-slate-900">Medication Details</h3>
+                  </div>
+                  {medications.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeMedication(index)}
+                      className="text-xs font-bold text-red-500 uppercase tracking-widest hover:text-red-600 flex items-center gap-1.5 px-3 py-1.5 bg-red-50 rounded-lg transition-all"
+                    >
+                      <XCircle className="w-3.5 h-3.5" /> Remove
+                    </button>
+                  )}
+                </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Medication Name</label>
+                    <input
+                      required
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-bold placeholder:font-normal"
+                      value={med.medication_name}
+                      onChange={e => updateMedication(index, 'medication_name', e.target.value)}
+                      placeholder="e.g. Amoxicillin 500mg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Dosage</label>
+                    <input
+                      required
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-bold placeholder:font-normal"
+                      value={med.dosage}
+                      onChange={e => updateMedication(index, 'dosage', e.target.value)}
+                      placeholder="e.g. 1 Tablet"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Frequency</label>
+                    <input
+                      required
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-bold placeholder:font-normal"
+                      value={med.frequency}
+                      onChange={e => updateMedication(index, 'frequency', e.target.value)}
+                      placeholder="e.g. 3x Daily"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Duration</label>
+                    <input
+                      required
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-bold placeholder:font-normal"
+                      value={med.duration}
+                      onChange={e => updateMedication(index, 'duration', e.target.value)}
+                      placeholder="e.g. 7 Days"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Special Instructions</label>
+                    <input
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-bold placeholder:font-normal"
+                      value={med.instructions}
+                      onChange={e => updateMedication(index, 'instructions', e.target.value)}
+                      placeholder="e.g. Take after meals"
+                    />
+                  </div>
+                </div>
+                {index < medications.length - 1 && <div className="mt-12 border-b border-slate-100 border-dashed" />}
+              </div>
+            ))}
+          </form>
+        </div>
+
+        <div className="p-8 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-4">
+          <button
+            type="button"
+            onClick={addMedication}
+            className="flex-1 py-4 bg-white border-2 border-indigo-600 text-indigo-600 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-indigo-50 transition-all flex items-center justify-center gap-2"
+          >
+            <Plus className="w-5 h-5" /> Add Another Medication
+          </button>
           <button
             type="submit"
+            form="prescription-form"
             disabled={loading}
-            className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-100 disabled:opacity-50"
+            className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {loading ? 'SAVING...' : 'SAVE PRESCRIPTION'}
+            {loading ? 'SAVING...' : <><FileText className="w-5 h-5" /> ISSUE PRESCRIPTION</>}
           </button>
-        </form>
+        </div>
       </motion.div>
     </div>
   );
