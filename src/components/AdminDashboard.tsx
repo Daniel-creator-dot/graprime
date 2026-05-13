@@ -386,6 +386,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
                                 </span>
                               </td>
                               <td className="px-6 py-4">
+                                <div className="flex items-center gap-2">
                                   {apt.status === 'approved' && (
                                     <button 
                                       onClick={() => updateStatus(apt.id, 'approved')}
