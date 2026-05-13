@@ -130,41 +130,46 @@ export default function ConsultationWorkspace({ appointment, user, onClose, onCo
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex">
       <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25 }}
-        className="ml-auto w-full max-w-3xl bg-white h-full flex flex-col shadow-2xl">
+        className="ml-auto w-full md:max-w-3xl bg-white h-full flex flex-col shadow-2xl">
         
         {/* Header */}
-        <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white">
+        <div className="p-4 md:p-6 border-b border-slate-200 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-black uppercase tracking-wider">Consultation Workspace</h2>
-            <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-xl transition-colors"><XCircle className="w-5 h-5" /></button>
+            <h2 className="text-sm md:text-xl font-black uppercase tracking-wider truncate mr-4">Consultation Workspace</h2>
+            <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-xl transition-colors flex-shrink-0"><XCircle className="w-5 h-5" /></button>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center font-bold text-lg">
-              {appointment.full_name?.[0] || '?'}
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center font-bold text-base md:text-lg flex-shrink-0">
+                {appointment.full_name?.[0] || '?'}
+              </div>
+              <div className="min-w-0">
+                <p className="font-bold text-base md:text-lg truncate">{appointment.full_name}</p>
+                <p className="text-indigo-200 text-[10px] md:text-xs font-medium">
+                  {appointment.staff_id && `Staff #${appointment.staff_id} · `}
+                  {appointment.preferred_time} · {new Date(appointment.preferred_date).toLocaleDateString()}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="font-bold text-lg">{appointment.full_name}</p>
-              <p className="text-indigo-200 text-xs font-medium">
-                {appointment.staff_id && `Staff #${appointment.staff_id} · `}
-                {appointment.preferred_time} · {new Date(appointment.preferred_date).toLocaleDateString()}
-              </p>
+            
+            <div className="flex items-center gap-2 flex-wrap md:ml-auto">
+              {appointment.is_telemedicine && appointment.meeting_link && (
+                <a 
+                  href={appointment.meeting_link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 md:px-4 py-2 bg-white text-indigo-600 rounded-xl font-black text-[9px] md:text-[10px] uppercase flex items-center gap-2 hover:bg-indigo-50 transition-all shadow-lg"
+                >
+                  <Video className="w-4 h-4" />
+                  JOIN VIDEO
+                </a>
+              )}
+              {consultation && (
+                <span className={`px-3 py-1 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest ${consultation.status === 'completed' ? 'bg-green-400/20 text-green-100' : 'bg-yellow-400/20 text-yellow-100'}`}>
+                  {consultation.status}
+                </span>
+              )}
             </div>
-            {appointment.is_telemedicine && appointment.meeting_link && (
-              <a 
-                href={appointment.meeting_link}
-                target="_blank"
-                rel="noreferrer"
-                className="ml-4 px-4 py-2 bg-white text-indigo-600 rounded-xl font-black text-[10px] uppercase flex items-center gap-2 hover:bg-indigo-50 transition-all shadow-lg"
-              >
-                <Video className="w-4 h-4" />
-                JOIN VIDEO CALL
-              </a>
-            )}
-            {consultation && (
-              <span className={`ml-auto px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${consultation.status === 'completed' ? 'bg-green-400/20 text-green-100' : 'bg-yellow-400/20 text-yellow-100'}`}>
-                {consultation.status}
-              </span>
-            )}
           </div>
         </div>
 

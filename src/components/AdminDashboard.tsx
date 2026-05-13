@@ -21,7 +21,8 @@ import {
   Video,
   Plus,
   FileText,
-  ClipboardList
+  ClipboardList,
+  Menu
 } from 'lucide-react';
 import { appointmentsApi, analyticsApi, doctorsApi, notificationsApi, usersApi, settingsApi, prescriptionsApi } from '../api/client';
 import { motion, AnimatePresence } from 'motion/react';
@@ -207,12 +208,12 @@ return (
     {/* Main Content */}
     <main className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 md:px-8 py-6 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="flex items-center gap-4">
+      <header className="flex items-center justify-between px-4 md:px-8 py-4 md:py-6 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+        <div className="flex items-center gap-2 md:gap-4">
           <button className="md:hidden p-2 hover:bg-slate-100 rounded-lg" onClick={() => setIsSidebarOpen(true)}>
-            <MoreVertical className="w-6 h-6 rotate-90" />
+            <Menu className="w-6 h-6" />
           </button>
-          <h1 className="text-lg md:text-2xl font-black tracking-tight text-slate-900 uppercase truncate max-w-[150px] md:max-w-none">
+          <h1 className="text-base md:text-2xl font-black tracking-tight text-slate-900 uppercase truncate max-w-[120px] md:max-w-none">
             {activeTab === 'overview' ? 'Dashboard' : activeTab.replace('_', ' ')}
           </h1>
         </div>
@@ -281,7 +282,7 @@ return (
 
       {/* Content Area */}
       <div className="flex-1 overflow-y-auto p-4 md:p-8">
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           {activeTab === 'overview' && (
             <motion.div
               key="overview"
@@ -294,24 +295,24 @@ return (
                 <div className="space-y-8">
                   {/* Active Session Spotlight */}
                   {appointments.find(a => a.status === 'consulting' && a.is_telemedicine) && (
-                    <div className="bg-indigo-600 p-8 rounded-[40px] shadow-2xl shadow-indigo-200 relative overflow-hidden text-white">
-                      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                        <div className="space-y-4">
-                          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest">
+                    <div className="bg-indigo-600 p-6 md:p-8 rounded-[32px] md:rounded-[40px] shadow-2xl shadow-indigo-200 relative overflow-hidden text-white">
+                      <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 md:gap-8">
+                        <div className="space-y-3 md:space-y-4">
+                          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest">
                             <span className="w-2 h-2 bg-red-400 rounded-full animate-pulse" />
                             Active Consultation
                           </div>
-                          <h3 className="text-4xl font-black">
+                          <h3 className="text-2xl md:text-4xl font-black">
                             {appointments.find(a => a.status === 'consulting' && a.is_telemedicine)?.full_name}
                           </h3>
-                          <p className="text-indigo-100 font-medium">Session started at {appointments.find(a => a.status === 'consulting' && a.is_telemedicine)?.preferred_time}</p>
+                          <p className="text-indigo-100 text-sm md:text-base font-medium">Session started at {appointments.find(a => a.status === 'consulting' && a.is_telemedicine)?.preferred_time}</p>
                         </div>
-                        <div className="flex gap-4">
+                        <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
                           <a
                             href={appointments.find(a => a.status === 'consulting' && a.is_telemedicine)?.meeting_link}
                             target="_blank"
                             rel="noreferrer"
-                            className="px-10 py-5 bg-white text-indigo-600 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
+                            className="px-6 md:px-10 py-4 md:py-5 bg-white text-indigo-600 rounded-2xl font-black text-xs md:text-sm uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
                           >
                             JOIN ROOM <Video className="w-5 h-5" />
                           </a>
@@ -320,7 +321,7 @@ return (
                               setPrescriptionApt(appointments.find(a => a.status === 'consulting' && a.is_telemedicine));
                               setIsPrescriptionModalOpen(true);
                             }}
-                            className="px-10 py-5 bg-indigo-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest border border-indigo-400/50 hover:bg-indigo-400 transition-all flex items-center gap-3"
+                            className="px-6 md:px-10 py-4 md:py-5 bg-indigo-500 text-white rounded-2xl font-black text-xs md:text-sm uppercase tracking-widest border border-indigo-400/50 hover:bg-indigo-400 transition-all flex items-center justify-center gap-3"
                           >
                             PRESCRIPTION <FileText className="w-5 h-5" />
                           </button>
@@ -375,7 +376,7 @@ return (
                       </div>
                     </div>
                   </div>
-                </div>
+                  </div>
                 )}
 
                   {/* Stats Grid */}
@@ -400,17 +401,18 @@ return (
                         </div>
                       </div>
                       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                        <table className="w-full text-left">
-                          <thead>
-                            <tr className="bg-slate-50 border-b border-slate-200">
-                              <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Patient / IDs</th>
-                              <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Time</th>
-                              <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Doctor</th>
-                              <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                              <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Action</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left min-w-[700px]">
+                            <thead>
+                              <tr className="bg-slate-50 border-b border-slate-200">
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Patient / IDs</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Time</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Doctor</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
                             {loading ? (
                               <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400">Loading data...</td></tr>
                             ) : appointments.length === 0 ? (
@@ -483,8 +485,9 @@ return (
                             ))}
                           </tbody>
                         </table>
-                      </div>
                     </div>
+                  </div>
+                </div>
 
                     {/* Sidebar Stats */}
                     <div className="space-y-6">
@@ -515,6 +518,7 @@ return (
                       </div>
                     </div>
                   </div>
+
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
@@ -680,7 +684,7 @@ return (
                         </tbody>
                       </table>
                     </div>
-                  )}
+                )}
                 </motion.div>
               )}
 
@@ -1168,7 +1172,7 @@ return (
                 </motion.div>
               )}
             </AnimatePresence>
-        </div>
+          </div>
 
       {/* Doctor Modal */}
       <DoctorModal

@@ -297,14 +297,30 @@ app.delete('/api/users/:id', async (req, res) => {
 });
 
 // --- Appointment Routes ---
-app.get('/api/appointments', async (req, res) => {
+app.get('/api/appointments', authenticate, async (req: any, res) => {
   try {
-    const result = await query(`
+    let queryText = `
       SELECT a.*, d.name as doctor_name 
       FROM appointments a 
       LEFT JOIN doctors d ON a.doctor_id = d.id 
-      ORDER BY a.preferred_date DESC, a.preferred_time DESC
-    `);
+    `;
+    let queryParams: any[] = [];
+
+    if (req.user.role === 'doctor') {
+      // Find the doctor_id for this user
+      const docResult = await query('SELECT id FROM doctors WHERE user_id = $1', [req.user.id]);
+      if (docResult.rows.length > 0) {
+        queryText += ' WHERE a.doctor_id = $1';
+        queryParams.push(docResult.rows[0].id);
+      } else {
+        // If doctor not found in doctors table, return empty
+        return res.json([]);
+      }
+    }
+
+    queryText += ' ORDER BY a.preferred_date DESC, a.preferred_time DESC';
+    
+    const result = await query(queryText, queryParams);
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
@@ -987,19 +1003,35 @@ app.patch('/api/doctors/:id/status', async (req, res) => {
 });
 
 // --- Analytics Routes ---
-app.get('/api/analytics/dashboard', async (req, res) => {
+app.get('/api/analytics/dashboard', authenticate, async (req: any, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
+    let doctorId = null;
+
+    if (req.user.role === 'doctor') {
+      const docResult = await query('SELECT id FROM doctors WHERE user_id = $1', [req.user.id]);
+      if (docResult.rows.length > 0) {
+        doctorId = docResult.rows[0].id;
+      } else {
+        return res.status(403).json({ message: 'Doctor record not found' });
+      }
+    }
+
+    const doctorFilter = doctorId ? ' AND doctor_id = $2' : '';
+    const doctorFilterWhere = doctorId ? ' WHERE doctor_id = $1' : '';
+    const doctorFilterWorkload = doctorId ? ' AND d.id = $2' : '';
+    const params = doctorId ? [today, doctorId] : [today];
     
     // Stats
     const statsResult = await query(`
       SELECT 
         COUNT(*) as total,
-        COUNT(*) FILTER (WHERE preferred_date = $1) as today,
-        COUNT(*) FILTER (WHERE status = 'pending') as pending,
-        COUNT(*) FILTER (WHERE status = 'completed') as completed
+        COUNT(*) FILTER (WHERE preferred_date = $1${doctorFilter}) as today,
+        COUNT(*) FILTER (WHERE status = 'pending'${doctorFilter}) as pending,
+        COUNT(*) FILTER (WHERE status = 'completed'${doctorFilter}) as completed
       FROM appointments
-    `, [today]);
+      ${doctorId ? 'WHERE doctor_id = $2' : ''}
+    `, params);
 
     // Weekly Trends
     const trendsResult = await query(`
@@ -1007,10 +1039,10 @@ app.get('/api/analytics/dashboard', async (req, res) => {
         to_char(preferred_date, 'Dy') as day,
         COUNT(*) as count
       FROM appointments
-      WHERE preferred_date > CURRENT_DATE - INTERVAL '7 days'
+      WHERE preferred_date > CURRENT_DATE - INTERVAL '7 days'${doctorFilter}
       GROUP BY preferred_date
       ORDER BY preferred_date
-    `);
+    `, doctorId ? [doctorId] : []);
 
     // Doctor Workload
     const workloadResult = await query(`
@@ -1019,9 +1051,9 @@ app.get('/api/analytics/dashboard', async (req, res) => {
         COUNT(a.id) as count
       FROM doctors d
       LEFT JOIN appointments a ON d.id = a.doctor_id AND a.preferred_date = $1
-      WHERE d.is_active = TRUE
+      WHERE d.is_active = TRUE${doctorFilterWorkload}
       GROUP BY d.id, d.name
-    `, [today]);
+    `, params);
 
     // No-Show Stats
     const noShowResult = await query(`
@@ -1029,7 +1061,8 @@ app.get('/api/analytics/dashboard', async (req, res) => {
         COUNT(*) FILTER (WHERE status = 'missed') as missed_total,
         COUNT(DISTINCT patient_id) FILTER (WHERE status = 'missed') as repeated_offenders
       FROM appointments
-    `);
+      ${doctorFilterWhere}
+    `, doctorId ? [doctorId] : []);
     
     // Peak Hours
     const peakHoursResult = await query(`
@@ -1037,11 +1070,11 @@ app.get('/api/analytics/dashboard', async (req, res) => {
         extract(hour from preferred_time) as hour,
         COUNT(*) as count
       FROM appointments
-      WHERE preferred_date = $1
+      WHERE preferred_date = $1${doctorFilter}
       GROUP BY hour
       ORDER BY count DESC
       LIMIT 1
-    `, [today]);
+    `, params);
 
     let peakRange = 'No Data'; // Improved fallback
     if (peakHoursResult.rows.length > 0) {
@@ -1060,9 +1093,9 @@ app.get('/api/analytics/dashboard', async (req, res) => {
         SELECT 
           EXTRACT(EPOCH FROM (completed_at - (preferred_date + preferred_time))) / 60 as wait_mins
         FROM appointments
-        WHERE status = 'completed' AND completed_at IS NOT NULL
+        WHERE status = 'completed' AND completed_at IS NOT NULL${doctorFilter}
       ) as sub
-    `);
+    `, doctorId ? [doctorId] : []);
 
     let waitDistribution = [
       { label: 'Under 15m', val: 0, color: 'bg-green-500' },
