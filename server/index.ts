@@ -331,6 +331,8 @@ app.get('/api/appointments/my', authenticate, async (req: any, res) => {
 });
 
 app.post('/api/appointments', async (req, res) => {
+  const { 
+    fullName, whoIsComing, phoneNumber, email, staffId, nationwideId, department, 
     reason, preferredDate, preferredTime, priority, notes, doctor_id, service, isTelemedicine
   } = req.body;
   
