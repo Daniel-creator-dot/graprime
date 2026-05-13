@@ -537,12 +537,27 @@ app.patch('/api/appointments/:id/status', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
   try {
+    // 1. Get current appointment data to check telemedicine status
+    const initialApt = await query('SELECT * FROM appointments WHERE id = $1', [id]);
+    const aptData = initialApt.rows[0];
+
+    let meetingLink = aptData?.meeting_link;
+
+    // 2. If approving a telemedicine appointment that doesn't have a link yet, generate one
+    if (status === 'approved' && aptData?.is_telemedicine && !meetingLink) {
+      const part1 = Math.random().toString(36).substring(2, 5);
+      const part2 = Math.random().toString(36).substring(2, 6);
+      const part3 = Math.random().toString(36).substring(2, 5);
+      meetingLink = `https://meet.google.com/${part1}-${part2}-${part3}`;
+    }
+
     const result = await query(
       `UPDATE appointments 
        SET status = $1::varchar, 
+           meeting_link = COALESCE($2, meeting_link),
            completed_at = CASE WHEN $1::varchar = 'completed' THEN CURRENT_TIMESTAMP ELSE completed_at END 
-       WHERE id = $2 RETURNING *`,
-      [status, id]
+       WHERE id = $3 RETURNING *`,
+      [status, meetingLink, id]
     );
     const apt = result.rows[0];
     console.log(`[STATUS UPDATE] Appointment ${id} status set to ${status}. Data:`, apt ? 'found' : 'not found');
@@ -550,12 +565,18 @@ app.patch('/api/appointments/:id/status', async (req, res) => {
     // Status SMS Alerts
     if (apt) {
       if (status === 'approved') {
-        console.log(`[APPROVAL SMS] Preparing SMS for ${apt.phone_number}...`);
         const docResult = await query('SELECT name FROM doctors WHERE id = $1', [apt.doctor_id]);
         const doctorName = docResult.rows[0]?.name || 'a Physician';
         const dateStr = apt.preferred_date ? new Date(apt.preferred_date).toLocaleDateString() : 'the scheduled date';
-        const locationLink = "https://www.google.com/maps/search/?api=1&query=Primecare+Medical+Center+Accra";
-        const msg = `CSA: Your appointment ${apt.appointment_id} has been APPROVED with ${doctorName} for ${dateStr}. Location: ${locationLink}. Call +233200024081 for enquiries. Thank you for choosing Primecare Medical Center.`;
+        
+        let msg = '';
+        if (apt.is_telemedicine && apt.meeting_link) {
+          msg = `CSA: Your Telemedicine session ${apt.appointment_id} with ${doctorName} is APPROVED for ${dateStr} at ${apt.preferred_time}. Join link: ${apt.meeting_link}. Thank you for choosing Primecare.`;
+        } else {
+          const locationLink = "https://www.google.com/maps/search/?api=1&query=Primecare+Medical+Center+Accra";
+          msg = `CSA: Your appointment ${apt.appointment_id} has been APPROVED with ${doctorName} for ${dateStr}. Location: ${locationLink}. Call +233200024081 for enquiries. Thank you for choosing Primecare Medical Center.`;
+        }
+        
         await sendSMS(apt.phone_number, msg).catch(e => console.error('SMS Error in Status/Approve:', e));
       } else if (status === 'completed') {
         const docResult = await query('SELECT name FROM doctors WHERE id = $1', [apt.doctor_id]);
