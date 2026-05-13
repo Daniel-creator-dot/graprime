@@ -32,6 +32,7 @@ const INITIAL_DATA: AppointmentData = {
   whoIsComing: [],
   phoneNumber: '',
   email: '',
+  staffId: '',
   nationwideId: '',
   department: '',
   reason: '',

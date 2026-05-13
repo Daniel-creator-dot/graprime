@@ -28,6 +28,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import graLogo from '../gra.png';
 import graaLogo from '../graa.png';
 import StatusModal from './StatusModal';
+import ConsultationWorkspace from './ConsultationWorkspace';
 
 type Tab = 'overview' | 'appointments' | 'doctors' | 'queue' | 'reports' | 'settings' | 'users';
 type ViewMode = 'list' | 'calendar';
@@ -70,6 +71,7 @@ export default function AdminDashboard({ user, onLogout }: { user: any, onLogout
   });
   const [isPrescriptionModalOpen, setIsPrescriptionModalOpen] = useState(false);
   const [prescriptionApt, setPrescriptionApt] = useState<any>(null);
+  const [consultationApt, setConsultationApt] = useState<any>(null);
 
 useEffect(() => {
   fetchData();
@@ -361,8 +363,7 @@ return (
                         <p className="text-slate-500 font-medium text-sm mb-8">Create a quick Google Meet link to share with a patient immediately.</p>
                         <button
                           onClick={() => {
-                            const link = `https://meet.google.com/pbc-${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 5)}`;
-                            window.open(link, '_blank');
+                            window.open('https://meet.google.com/new', '_blank');
                           }}
                           className="px-6 py-3 bg-green-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-green-100 hover:bg-green-700 active:scale-95 transition-all"
                         >
@@ -836,9 +837,14 @@ return (
                                     </button>
                                   )}
                                   {apt.status === 'consulting' && (user?.role === 'admin' || user?.role === 'doctor') && (
-                                    <button onClick={() => updateStatus(apt.id, 'completed')} className="px-3 py-1.5 bg-green-600 text-white text-xs font-bold rounded-lg shadow-sm">
-                                      Complete
-                                    </button>
+                                    <>
+                                      <button onClick={() => setConsultationApt(apt)} className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm">
+                                        📋 Consult
+                                      </button>
+                                      <button onClick={() => updateStatus(apt.id, 'completed')} className="px-3 py-1.5 bg-green-600 text-white text-xs font-bold rounded-lg shadow-sm">
+                                        Complete
+                                      </button>
+                                    </>
                                   )}
                                 </div>
                               </td>
@@ -1207,6 +1213,14 @@ return (
         onSuccess={fetchData}
         doctors={doctors}
       />
+      {consultationApt && (
+        <ConsultationWorkspace
+          appointment={consultationApt}
+          user={user}
+          onClose={() => setConsultationApt(null)}
+          onComplete={() => { setConsultationApt(null); updateStatus(consultationApt.id, 'completed'); }}
+        />
+      )}
     </main>
   </div>
 );

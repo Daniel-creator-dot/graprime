@@ -631,12 +631,12 @@ app.get('/api/prescriptions/my', authenticate, async (req: any, res) => {
 app.post('/api/prescriptions', authenticate, async (req: any, res) => {
   if (req.user.role === 'patient') return res.status(403).json({ message: 'Forbidden' });
   
-  const { appointment_id, patient_id, medication_name, dosage, frequency, duration, instructions } = req.body;
+  const { appointment_id, patient_id, consultation_id, medication_name, dosage, frequency, duration, instructions } = req.body;
   try {
     const result = await query(`
-      INSERT INTO prescriptions (appointment_id, patient_id, medication_name, dosage, frequency, duration, instructions)
-      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
-    `, [appointment_id, patient_id, medication_name, dosage, frequency, duration, instructions]);
+      INSERT INTO prescriptions (appointment_id, patient_id, consultation_id, medication_name, dosage, frequency, duration, instructions)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
+    `, [appointment_id, patient_id, consultation_id || null, medication_name, dosage, frequency, duration, instructions]);
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
@@ -653,6 +653,271 @@ app.delete('/api/prescriptions/:id', authenticate, async (req: any, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+// --- Consultation Routes ---
+app.get('/api/consultations/:appointmentId', authenticate, async (req: any, res) => {
+  try {
+    const result = await query(`
+      SELECT c.*, u.name as doctor_name
+      FROM consultations c
+      LEFT JOIN users u ON c.doctor_id = u.id
+      WHERE c.appointment_id = $1
+      ORDER BY c.created_at DESC
+    `, [req.params.appointmentId]);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.post('/api/consultations', authenticate, async (req: any, res) => {
+  if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Only doctors can create consultations' });
+  }
+  const { appointment_id, patient_id, chief_complaint, symptoms, diagnosis, clinical_notes,
+    vitals_bp, vitals_temp, vitals_pulse, vitals_weight, vitals_height, vitals_spo2,
+    follow_up_date } = req.body;
+  try {
+    const result = await query(`
+      INSERT INTO consultations (appointment_id, patient_id, doctor_id, chief_complaint, symptoms, diagnosis, clinical_notes,
+        vitals_bp, vitals_temp, vitals_pulse, vitals_weight, vitals_height, vitals_spo2, follow_up_date)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *
+    `, [appointment_id, patient_id, req.user.id, chief_complaint, symptoms, diagnosis, clinical_notes,
+      vitals_bp, vitals_temp, vitals_pulse, vitals_weight, vitals_height, vitals_spo2, follow_up_date || null]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.put('/api/consultations/:id', authenticate, async (req: any, res) => {
+  const { chief_complaint, symptoms, diagnosis, clinical_notes,
+    vitals_bp, vitals_temp, vitals_pulse, vitals_weight, vitals_height, vitals_spo2,
+    follow_up_date, status } = req.body;
+  try {
+    const result = await query(`
+      UPDATE consultations SET chief_complaint=$1, symptoms=$2, diagnosis=$3, clinical_notes=$4,
+        vitals_bp=$5, vitals_temp=$6, vitals_pulse=$7, vitals_weight=$8, vitals_height=$9, vitals_spo2=$10,
+        follow_up_date=$11, status=$12
+      WHERE id=$13 RETURNING *
+    `, [chief_complaint, symptoms, diagnosis, clinical_notes,
+      vitals_bp, vitals_temp, vitals_pulse, vitals_weight, vitals_height, vitals_spo2,
+      follow_up_date || null, status || 'in_progress', req.params.id]);
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// --- Lab Request Routes ---
+app.get('/api/labs', authenticate, async (req: any, res) => {
+  try {
+    const { patient_id, status } = req.query;
+    let sql = `
+      SELECT lr.*, a.full_name as patient_name, a.appointment_id as apt_code, u.name as doctor_name
+      FROM lab_requests lr
+      LEFT JOIN appointments a ON lr.appointment_id = a.id
+      LEFT JOIN users u ON lr.doctor_id = u.id
+    `;
+    const conditions: string[] = [];
+    const params: any[] = [];
+    
+    if (patient_id) { conditions.push(`lr.patient_id = $${params.length + 1}`); params.push(patient_id); }
+    if (status) { conditions.push(`lr.status = $${params.length + 1}`); params.push(status); }
+    
+    if (conditions.length > 0) sql += ' WHERE ' + conditions.join(' AND ');
+    sql += ' ORDER BY lr.created_at DESC';
+    
+    const result = await query(sql, params);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.post('/api/labs', authenticate, async (req: any, res) => {
+  if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Only doctors can order labs' });
+  }
+  const { consultation_id, appointment_id, patient_id, test_name, test_type, urgency } = req.body;
+  try {
+    // Get doctor name
+    const userResult = await query('SELECT name FROM users WHERE id = $1', [req.user.id]);
+    const doctorName = userResult.rows[0]?.name || 'Unknown';
+    
+    const result = await query(`
+      INSERT INTO lab_requests (consultation_id, appointment_id, patient_id, doctor_id, test_name, test_type, urgency, requested_by)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
+    `, [consultation_id || null, appointment_id, patient_id, req.user.id, test_name, test_type || 'blood', urgency || 'routine', doctorName]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.put('/api/labs/:id', authenticate, async (req: any, res) => {
+  // Lab technicians, doctors, and admins can update
+  if (!['lab_technician', 'doctor', 'admin'].includes(req.user.role)) {
+    return res.status(403).json({ message: 'Forbidden' });
+  }
+  const { status, results, result_notes } = req.body;
+  try {
+    const userResult = await query('SELECT name FROM users WHERE id = $1', [req.user.id]);
+    const completedBy = userResult.rows[0]?.name || 'Unknown';
+    
+    const result = await query(`
+      UPDATE lab_requests SET status=$1, results=$2, result_notes=$3, 
+        completed_by=$4, completed_at=${status === 'completed' ? 'CURRENT_TIMESTAMP' : 'completed_at'}
+      WHERE id=$5 RETURNING *
+    `, [status, results, result_notes, completedBy, req.params.id]);
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// --- Scan Request Routes ---
+app.get('/api/scans', authenticate, async (req: any, res) => {
+  try {
+    const { patient_id, status } = req.query;
+    let sql = `
+      SELECT sr.*, a.full_name as patient_name, a.appointment_id as apt_code, u.name as doctor_name
+      FROM scan_requests sr
+      LEFT JOIN appointments a ON sr.appointment_id = a.id
+      LEFT JOIN users u ON sr.doctor_id = u.id
+    `;
+    const conditions: string[] = [];
+    const params: any[] = [];
+    
+    if (patient_id) { conditions.push(`sr.patient_id = $${params.length + 1}`); params.push(patient_id); }
+    if (status) { conditions.push(`sr.status = $${params.length + 1}`); params.push(status); }
+    
+    if (conditions.length > 0) sql += ' WHERE ' + conditions.join(' AND ');
+    sql += ' ORDER BY sr.created_at DESC';
+    
+    const result = await query(sql, params);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.post('/api/scans', authenticate, async (req: any, res) => {
+  if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Only doctors can request scans' });
+  }
+  const { consultation_id, appointment_id, patient_id, scan_type, body_part, clinical_indication, urgency } = req.body;
+  try {
+    const userResult = await query('SELECT name FROM users WHERE id = $1', [req.user.id]);
+    const doctorName = userResult.rows[0]?.name || 'Unknown';
+    
+    const result = await query(`
+      INSERT INTO scan_requests (consultation_id, appointment_id, patient_id, doctor_id, scan_type, body_part, clinical_indication, urgency, requested_by)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *
+    `, [consultation_id || null, appointment_id, patient_id, req.user.id, scan_type, body_part, clinical_indication, urgency || 'routine', doctorName]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.put('/api/scans/:id', authenticate, async (req: any, res) => {
+  if (!['lab_technician', 'doctor', 'admin'].includes(req.user.role)) {
+    return res.status(403).json({ message: 'Forbidden' });
+  }
+  const { status, results, result_notes } = req.body;
+  try {
+    const userResult = await query('SELECT name FROM users WHERE id = $1', [req.user.id]);
+    const completedBy = userResult.rows[0]?.name || 'Unknown';
+    
+    const result = await query(`
+      UPDATE scan_requests SET status=$1, results=$2, result_notes=$3,
+        completed_by=$4, completed_at=${status === 'completed' ? 'CURRENT_TIMESTAMP' : 'completed_at'}
+      WHERE id=$5 RETURNING *
+    `, [status, results, result_notes, completedBy, req.params.id]);
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// --- Patient History (Aggregated Timeline) ---
+app.get('/api/patients/:id/history', authenticate, async (req: any, res) => {
+  const patientId = req.params.id;
+  try {
+    const [consultations, labs, scans, prescriptions] = await Promise.all([
+      query(`
+        SELECT c.*, u.name as doctor_name, a.full_name as patient_name, a.preferred_date, a.preferred_time
+        FROM consultations c
+        LEFT JOIN users u ON c.doctor_id = u.id
+        LEFT JOIN appointments a ON c.appointment_id = a.id
+        WHERE c.patient_id = $1
+        ORDER BY c.created_at DESC
+      `, [patientId]),
+      query(`
+        SELECT lr.*, a.full_name as patient_name
+        FROM lab_requests lr
+        LEFT JOIN appointments a ON lr.appointment_id = a.id
+        WHERE lr.patient_id = $1
+        ORDER BY lr.created_at DESC
+      `, [patientId]),
+      query(`
+        SELECT sr.*, a.full_name as patient_name
+        FROM scan_requests sr
+        LEFT JOIN appointments a ON sr.appointment_id = a.id
+        WHERE sr.patient_id = $1
+        ORDER BY sr.created_at DESC
+      `, [patientId]),
+      query(`
+        SELECT pr.*, a.full_name as patient_name
+        FROM prescriptions pr
+        LEFT JOIN appointments a ON pr.appointment_id = a.id
+        WHERE pr.patient_id = $1
+        ORDER BY pr.created_at DESC
+      `, [patientId])
+    ]);
+    
+    res.json({
+      consultations: consultations.rows,
+      labs: labs.rows,
+      scans: scans.rows,
+      prescriptions: prescriptions.rows
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Also support history lookup by appointment (for walk-in patients without patient_id)
+app.get('/api/appointments/:id/history', authenticate, async (req: any, res) => {
+  const appointmentId = req.params.id;
+  try {
+    const [consultations, labs, scans, prescriptions] = await Promise.all([
+      query('SELECT c.*, u.name as doctor_name FROM consultations c LEFT JOIN users u ON c.doctor_id = u.id WHERE c.appointment_id = $1 ORDER BY c.created_at DESC', [appointmentId]),
+      query('SELECT * FROM lab_requests WHERE appointment_id = $1 ORDER BY created_at DESC', [appointmentId]),
+      query('SELECT * FROM scan_requests WHERE appointment_id = $1 ORDER BY created_at DESC', [appointmentId]),
+      query('SELECT * FROM prescriptions WHERE appointment_id = $1 ORDER BY created_at DESC', [appointmentId])
+    ]);
+    
+    res.json({
+      consultations: consultations.rows,
+      labs: labs.rows,
+      scans: scans.rows,
+      prescriptions: prescriptions.rows
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 // --- Doctor Routes ---
 app.get('/api/doctors', async (req, res) => {

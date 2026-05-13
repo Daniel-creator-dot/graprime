@@ -72,3 +72,26 @@ export const prescriptionsApi = {
   create: (data: any) => client.post('/prescriptions', data),
   delete: (id: number) => client.delete(`/prescriptions/${id}`),
 };
+
+export const consultationsApi = {
+  getByAppointment: (appointmentId: number) => client.get(`/consultations/${appointmentId}`),
+  create: (data: any) => client.post('/consultations', data),
+  update: (id: number, data: any) => client.put(`/consultations/${id}`, data),
+};
+
+export const labsApi = {
+  getAll: (params?: any) => client.get('/labs', { params }),
+  create: (data: any) => client.post('/labs', data),
+  update: (id: number, data: any) => client.put(`/labs/${id}`, data),
+};
+
+export const scansApi = {
+  getAll: (params?: any) => client.get('/scans', { params }),
+  create: (data: any) => client.post('/scans', data),
+  update: (id: number, data: any) => client.put(`/scans/${id}`, data),
+};
+
+export const patientHistoryApi = {
+  getByPatient: (patientId: number) => client.get(`/patients/${patientId}/history`),
+  getByAppointment: (appointmentId: number) => client.get(`/appointments/${appointmentId}/history`),
+};

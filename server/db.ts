@@ -222,6 +222,7 @@ export const initDb = async () => {
         id SERIAL PRIMARY KEY,
         appointment_id INTEGER REFERENCES appointments(id),
         patient_id INTEGER REFERENCES patients(id),
+        consultation_id INTEGER,
         medication_name VARCHAR(255) NOT NULL,
         dosage VARCHAR(100),
         frequency VARCHAR(100),
@@ -230,6 +231,93 @@ export const initDb = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    // Migration: Add consultation_id to prescriptions if missing
+    await query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='prescriptions' AND column_name='consultation_id') THEN
+          ALTER TABLE prescriptions ADD COLUMN consultation_id INTEGER;
+        END IF;
+      END $$;
+    `);
+
+    // Create Consultations table
+    await query(`
+      CREATE TABLE IF NOT EXISTS consultations (
+        id SERIAL PRIMARY KEY,
+        appointment_id INTEGER REFERENCES appointments(id),
+        patient_id INTEGER REFERENCES patients(id),
+        doctor_id INTEGER REFERENCES users(id),
+        chief_complaint TEXT,
+        symptoms TEXT,
+        diagnosis TEXT,
+        clinical_notes TEXT,
+        vitals_bp VARCHAR(20),
+        vitals_temp VARCHAR(10),
+        vitals_pulse VARCHAR(10),
+        vitals_weight VARCHAR(10),
+        vitals_height VARCHAR(10),
+        vitals_spo2 VARCHAR(10),
+        follow_up_date DATE,
+        status VARCHAR(20) DEFAULT 'in_progress',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create Lab Requests table
+    await query(`
+      CREATE TABLE IF NOT EXISTS lab_requests (
+        id SERIAL PRIMARY KEY,
+        consultation_id INTEGER REFERENCES consultations(id),
+        appointment_id INTEGER REFERENCES appointments(id),
+        patient_id INTEGER REFERENCES patients(id),
+        doctor_id INTEGER REFERENCES users(id),
+        test_name VARCHAR(255) NOT NULL,
+        test_type VARCHAR(50) DEFAULT 'blood',
+        urgency VARCHAR(20) DEFAULT 'routine',
+        status VARCHAR(30) DEFAULT 'pending',
+        results TEXT,
+        result_notes TEXT,
+        requested_by VARCHAR(100),
+        completed_by VARCHAR(100),
+        completed_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create Scan Requests table
+    await query(`
+      CREATE TABLE IF NOT EXISTS scan_requests (
+        id SERIAL PRIMARY KEY,
+        consultation_id INTEGER REFERENCES consultations(id),
+        appointment_id INTEGER REFERENCES appointments(id),
+        patient_id INTEGER REFERENCES patients(id),
+        doctor_id INTEGER REFERENCES users(id),
+        scan_type VARCHAR(50) NOT NULL,
+        body_part VARCHAR(100),
+        clinical_indication TEXT,
+        urgency VARCHAR(20) DEFAULT 'routine',
+        status VARCHAR(30) DEFAULT 'pending',
+        results TEXT,
+        result_notes TEXT,
+        requested_by VARCHAR(100),
+        completed_by VARCHAR(100),
+        completed_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create default lab technician if none exists
+    const labTechCount = await query("SELECT COUNT(*) FROM users WHERE role = 'lab_technician'");
+    if (parseInt(labTechCount.rows[0].count) === 0) {
+      const bcrypt = await import('bcryptjs');
+      const hashedPassword = await bcrypt.default.hash('labtech123', 10);
+      await query(
+        'INSERT INTO users (username, password, role, name) VALUES ($1, $2, $3, $4)',
+        ['labtech', hashedPassword, 'lab_technician', 'Lab Technician']
+      );
+      console.log('Default lab technician user created (labtech/labtech123)');
+    }
 
     console.log('Database initialized successfully');
   } catch (err) {

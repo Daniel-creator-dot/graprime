@@ -5,6 +5,7 @@ import AdminDashboard from './components/AdminDashboard';
 import Login from './components/Login';
 import Register from './components/Register';
 import PatientDashboard from './components/PatientDashboard';
+import LabTechDashboard from './components/LabTechDashboard';
 
 export default function App() {
   const navigate = useNavigate();
@@ -49,6 +50,8 @@ export default function App() {
           user ? (
             user.role === 'patient' ? (
               <PatientDashboard user={user} onLogout={handleLogout} />
+            ) : user.role === 'lab_technician' ? (
+              <LabTechDashboard user={user} onLogout={handleLogout} />
             ) : (
               <AdminDashboard user={user} onLogout={handleLogout} />
             )
