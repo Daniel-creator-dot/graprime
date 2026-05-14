@@ -470,7 +470,7 @@ app.post('/api/appointments/:id/generate-link', authenticate, async (req: any, r
     // Generate a "real" looking Google Meet code: abc-defg-hij
     const chars = 'abcdefghijklmnopqrstuvwxyz';
     const getChars = (len: number) => Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-    const meetingLink = `https://meet.google.com/${getChars(3)}-${getChars(4)}-${getChars(3)}`;
+    const meetingLink = `https://meet.jit.si/graprime-telemed-${getChars(3)}-${getChars(4)}-${getChars(3)}`;
     
     const result = await query(
       'UPDATE appointments SET meeting_link = $1, payment_status = $2 WHERE id = $3 RETURNING *',
@@ -507,7 +507,7 @@ app.post('/api/appointments/:id/pay', authenticate, async (req: any, res) => {
     if (apt.is_telemedicine) {
       const chars = 'abcdefghijklmnopqrstuvwxyz';
       const getChars = (len: number) => Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-      meetingLink = `https://meet.google.com/${getChars(3)}-${getChars(4)}-${getChars(3)}`;
+      meetingLink = `https://meet.jit.si/graprime-telemed-${getChars(3)}-${getChars(4)}-${getChars(3)}`;
     }
 
     await query(`
@@ -545,7 +545,7 @@ app.patch('/api/appointments/:id/status', async (req, res) => {
     if (status === 'approved' && aptData?.is_telemedicine && !meetingLink) {
       const chars = 'abcdefghijklmnopqrstuvwxyz';
       const getChars = (len: number) => Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-      meetingLink = `https://meet.google.com/${getChars(3)}-${getChars(4)}-${getChars(3)}`;
+      meetingLink = `https://meet.jit.si/graprime-telemed-${getChars(3)}-${getChars(4)}-${getChars(3)}`;
     }
 
     const result = await query(
