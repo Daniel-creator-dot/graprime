@@ -686,6 +686,12 @@ app.post('/api/prescriptions', authenticate, async (req: any, res) => {
       INSERT INTO prescriptions (appointment_id, patient_id, consultation_id, medication_name, dosage, frequency, duration, instructions)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
     `, [appointment_id, patient_id, consultation_id || null, medication_name, dosage, frequency, duration, instructions]);
+    
+    const aptResult = await query('SELECT phone_number FROM appointments WHERE id = $1', [appointment_id]);
+    if (aptResult.rows[0]) {
+      await sendSMS(aptResult.rows[0].phone_number, `CSA: A new prescription for ${medication_name} has been added to your portal. Please check your Patient Dashboard for dosage instructions.`);
+    }
+
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
