@@ -468,10 +468,9 @@ app.post('/api/appointments/:id/generate-link', authenticate, async (req: any, r
 
   try {
     // Generate a "real" looking Google Meet code: abc-defg-hij
-    const part1 = Math.random().toString(36).substring(2, 5);
-    const part2 = Math.random().toString(36).substring(2, 6);
-    const part3 = Math.random().toString(36).substring(2, 5);
-    const meetingLink = `https://meet.google.com/${part1}-${part2}-${part3}`;
+    const chars = 'abcdefghijklmnopqrstuvwxyz';
+    const getChars = (len: number) => Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    const meetingLink = `https://meet.google.com/${getChars(3)}-${getChars(4)}-${getChars(3)}`;
     
     const result = await query(
       'UPDATE appointments SET meeting_link = $1, payment_status = $2 WHERE id = $3 RETURNING *',
@@ -506,10 +505,9 @@ app.post('/api/appointments/:id/pay', authenticate, async (req: any, res) => {
     
     let meetingLink = null;
     if (apt.is_telemedicine) {
-      const part1 = Math.random().toString(36).substring(2, 5);
-      const part2 = Math.random().toString(36).substring(2, 6);
-      const part3 = Math.random().toString(36).substring(2, 5);
-      meetingLink = `https://meet.google.com/${part1}-${part2}-${part3}`;
+      const chars = 'abcdefghijklmnopqrstuvwxyz';
+      const getChars = (len: number) => Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+      meetingLink = `https://meet.google.com/${getChars(3)}-${getChars(4)}-${getChars(3)}`;
     }
 
     await query(`
@@ -545,10 +543,9 @@ app.patch('/api/appointments/:id/status', async (req, res) => {
 
     // 2. If approving a telemedicine appointment that doesn't have a link yet, generate one
     if (status === 'approved' && aptData?.is_telemedicine && !meetingLink) {
-      const part1 = Math.random().toString(36).substring(2, 5);
-      const part2 = Math.random().toString(36).substring(2, 6);
-      const part3 = Math.random().toString(36).substring(2, 5);
-      meetingLink = `https://meet.google.com/${part1}-${part2}-${part3}`;
+      const chars = 'abcdefghijklmnopqrstuvwxyz';
+      const getChars = (len: number) => Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+      meetingLink = `https://meet.google.com/${getChars(3)}-${getChars(4)}-${getChars(3)}`;
     }
 
     const result = await query(
