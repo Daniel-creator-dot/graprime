@@ -704,6 +704,23 @@ app.delete('/api/prescriptions/:id', authenticate, async (req: any, res) => {
 });
 
 // --- Consultation Routes ---
+app.get('/api/consultations/my', authenticate, async (req: any, res) => {
+  if (req.user.role !== 'patient') return res.status(403).json({ message: 'Forbidden' });
+  try {
+    const result = await query(`
+      SELECT c.*, u.name as doctor_name, a.preferred_date, a.service, a.notes as appointment_notes
+      FROM consultations c
+      JOIN appointments a ON c.appointment_id = a.id
+      LEFT JOIN users u ON c.doctor_id = u.id
+      WHERE c.patient_id = $1 AND c.status = 'completed'
+      ORDER BY c.created_at DESC
+    `, [req.user.id]);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 app.get('/api/consultations/:appointmentId', authenticate, async (req: any, res) => {
   try {
     const result = await query(`

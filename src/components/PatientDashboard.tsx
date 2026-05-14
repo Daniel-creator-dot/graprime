@@ -18,7 +18,7 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import { appointmentsApi, prescriptionsApi } from '../api/client';
+import { appointmentsApi, prescriptionsApi, consultationsApi } from '../api/client';
 import { motion, AnimatePresence } from 'motion/react';
 import graLogo from '../gra.png';
 import graaLogo from '../graa.png';
@@ -32,6 +32,7 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
+  const [consultations, setConsultations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
   const [statusModal, setStatusModal] = useState<any>({ isOpen: false, type: 'success', title: '', message: '' });
@@ -44,9 +45,19 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
     setLoading(true);
     await Promise.all([
       fetchAppointments(),
-      fetchPrescriptions()
+      fetchPrescriptions(),
+      fetchConsultations()
     ]);
     setLoading(false);
+  };
+
+  const fetchConsultations = async () => {
+    try {
+      const res = await consultationsApi.getMy();
+      setConsultations(res.data);
+    } catch (err) {
+      console.error('Error fetching consultations:', err);
+    }
   };
 
   const fetchPrescriptions = async () => {
@@ -494,15 +505,60 @@ export default function PatientDashboard({ user, onLogout }: { user: any, onLogo
                 </div>
 
                 <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-sm">
-                  <h3 className="text-xl font-bold mb-6">Past Visit Notes</h3>
+                  <h3 className="text-xl font-bold mb-6">Past Visit Summaries</h3>
                   <div className="space-y-4">
-                    {appointments.filter(a => a.status === 'completed').map(apt => (
-                      <div key={apt.id} className="p-4 border-l-4 border-indigo-500 bg-slate-50 rounded-r-2xl">
-                        <p className="text-xs font-black text-indigo-600 uppercase tracking-widest mb-1">{apt.service}</p>
-                        <p className="text-sm font-medium text-slate-600">{apt.notes || 'Routine checkup completed. Patient in good health.'}</p>
-                        <p className="text-[10px] text-slate-400 mt-2 font-bold">{new Date(apt.preferred_date).toLocaleDateString()}</p>
+                    {consultations.length === 0 ? (
+                      <div className="text-center p-8 text-slate-400">
+                        <Activity className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                        <p className="font-bold">No completed visit summaries found.</p>
                       </div>
-                    ))}
+                    ) : (
+                      consultations.map(cons => (
+                        <div key={cons.id} className="p-5 border-l-4 border-indigo-500 bg-slate-50 rounded-r-2xl space-y-4">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-xs font-black text-indigo-600 uppercase tracking-widest mb-1">{cons.service || 'Medical Visit'}</p>
+                              <h4 className="font-bold text-slate-900 text-lg">{cons.diagnosis || 'Diagnosis Pending'}</h4>
+                            </div>
+                            <p className="text-[10px] text-slate-400 font-bold bg-white px-3 py-1 rounded-full border border-slate-200">
+                              {new Date(cons.preferred_date).toLocaleDateString()}
+                            </p>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {cons.vitals_bp && (
+                              <div className="bg-white p-2 rounded-xl border border-slate-100">
+                                <p className="text-[9px] text-slate-400 uppercase font-bold">BP</p>
+                                <p className="text-sm font-black">{cons.vitals_bp} <span className="text-[9px] font-normal text-slate-400">mmHg</span></p>
+                              </div>
+                            )}
+                            {cons.vitals_weight && (
+                              <div className="bg-white p-2 rounded-xl border border-slate-100">
+                                <p className="text-[9px] text-slate-400 uppercase font-bold">Weight</p>
+                                <p className="text-sm font-black">{cons.vitals_weight} <span className="text-[9px] font-normal text-slate-400">kg</span></p>
+                              </div>
+                            )}
+                            {cons.vitals_temp && (
+                              <div className="bg-white p-2 rounded-xl border border-slate-100">
+                                <p className="text-[9px] text-slate-400 uppercase font-bold">Temp</p>
+                                <p className="text-sm font-black">{cons.vitals_temp} <span className="text-[9px] font-normal text-slate-400">°C</span></p>
+                              </div>
+                            )}
+                          </div>
+
+                          {(cons.follow_up_date || cons.appointment_notes) && (
+                            <div className="pt-3 border-t border-slate-200">
+                              {cons.follow_up_date && (
+                                <p className="text-xs text-slate-600"><span className="font-bold">Follow-up:</span> {new Date(cons.follow_up_date).toLocaleDateString()}</p>
+                              )}
+                              {cons.appointment_notes && (
+                                <p className="text-xs text-slate-500 mt-1"><span className="font-bold">Notes:</span> {cons.appointment_notes}</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               </motion.section>

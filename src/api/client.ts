@@ -88,6 +88,7 @@ export const prescriptionsApi = {
 };
 
 export const consultationsApi = {
+  getMy: () => client.get('/consultations/my'),
   getByAppointment: (appointmentId: number) => client.get(`/consultations/${appointmentId}`),
   create: (data: any) => client.post('/consultations', data),
   update: (id: number, data: any) => client.put(`/consultations/${id}`, data),
