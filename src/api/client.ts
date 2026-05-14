@@ -18,6 +18,20 @@ client.interceptors.request.use((config) => {
   return config;
 });
 
+// Add interceptor to handle expired tokens (401 Unauthorized)
+client.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Clear local storage and redirect to login
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/'; // Or trigger your logout flow
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const authApi = {
   login: (data: any) => client.post('/auth/login', data),
   register: (data: any) => client.post('/auth/register', data),
