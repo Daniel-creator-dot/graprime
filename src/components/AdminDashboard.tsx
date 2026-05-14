@@ -1310,7 +1310,7 @@ function AppointmentEditModal({ isOpen, onClose, appointment, onSuccess, doctors
 
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
-      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden">
+      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white w-full max-w-md rounded-[32px] shadow-2xl max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Edit Appointment</h2>
