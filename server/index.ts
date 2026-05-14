@@ -725,14 +725,22 @@ app.post('/api/consultations', authenticate, async (req: any, res) => {
   }
   const { appointment_id, patient_id, chief_complaint, symptoms, diagnosis, clinical_notes,
     vitals_bp, vitals_temp, vitals_pulse, vitals_weight, vitals_height, vitals_spo2,
-    follow_up_date } = req.body;
+    follow_up_date, status } = req.body;
   try {
     const result = await query(`
       INSERT INTO consultations (appointment_id, patient_id, doctor_id, chief_complaint, symptoms, diagnosis, clinical_notes,
-        vitals_bp, vitals_temp, vitals_pulse, vitals_weight, vitals_height, vitals_spo2, follow_up_date)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *
+        vitals_bp, vitals_temp, vitals_pulse, vitals_weight, vitals_height, vitals_spo2, follow_up_date, status)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *
     `, [appointment_id, patient_id, req.user.id, chief_complaint, symptoms, diagnosis, clinical_notes,
-      vitals_bp, vitals_temp, vitals_pulse, vitals_weight, vitals_height, vitals_spo2, follow_up_date || null]);
+      vitals_bp, vitals_temp, vitals_pulse, vitals_weight, vitals_height, vitals_spo2, follow_up_date || null, status || 'in_progress']);
+    
+    if (status === 'completed' && diagnosis) {
+      const aptResult = await query('SELECT phone_number FROM appointments WHERE id = $1', [appointment_id]);
+      if (aptResult.rows[0]) {
+        await sendSMS(aptResult.rows[0].phone_number, `CSA: Your consultation is complete. Diagnosis: ${diagnosis}. Please follow your doctor's instructions.`);
+      }
+    }
+
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
@@ -745,6 +753,8 @@ app.put('/api/consultations/:id', authenticate, async (req: any, res) => {
     vitals_bp, vitals_temp, vitals_pulse, vitals_weight, vitals_height, vitals_spo2,
     follow_up_date, status } = req.body;
   try {
+    const oldCons = await query('SELECT status, appointment_id FROM consultations WHERE id = $1', [req.params.id]);
+    
     const result = await query(`
       UPDATE consultations SET chief_complaint=$1, symptoms=$2, diagnosis=$3, clinical_notes=$4,
         vitals_bp=$5, vitals_temp=$6, vitals_pulse=$7, vitals_weight=$8, vitals_height=$9, vitals_spo2=$10,
@@ -753,6 +763,14 @@ app.put('/api/consultations/:id', authenticate, async (req: any, res) => {
     `, [chief_complaint, symptoms, diagnosis, clinical_notes,
       vitals_bp, vitals_temp, vitals_pulse, vitals_weight, vitals_height, vitals_spo2,
       follow_up_date || null, status || 'in_progress', req.params.id]);
+    
+    if (status === 'completed' && oldCons.rows[0]?.status !== 'completed' && diagnosis) {
+      const aptResult = await query('SELECT phone_number FROM appointments WHERE id = $1', [oldCons.rows[0].appointment_id]);
+      if (aptResult.rows[0]) {
+        await sendSMS(aptResult.rows[0].phone_number, `CSA: Your consultation is complete. Diagnosis: ${diagnosis}. Please follow your doctor's instructions.`);
+      }
+    }
+
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
